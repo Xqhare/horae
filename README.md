@@ -12,17 +12,6 @@ As a hobby project, I don't think it's ready for production use.
     - Subtract one date or time from another date or time
     - Add a date or time and a duration
     - Subtract a date or time and a duration
-- Date and time durations
-    - Get number of leap years between two dates
-    - Get number of years between two dates
-    - Get number of months between two dates
-    - Get number of weeks between two dates
-    - Get number of days between two dates
-    - Get number of hours between two dates or times
-    - Get number of minutes between two dates or times
-    - Get number of seconds between two dates or times
-    - Get number of leap seconds between two dates or times
-    - Get number of milliseconds between two dates or times
 
 ## Creating new dates and times
 In general I want the API to feel like this:
@@ -36,6 +25,7 @@ let _now_in_capital3 = Utc::now().with_timezone(Timezone::from("Abu Dhabi"));
 let _now_in_capital4 = Utc::now().with_timezone(Timezone::from("Cockburn Town"));
 
 let date_in_past = Utc.from_ymd(2019, 12, 31).and_hms(23, 59, 59);
+let _date_in_past_gmt = Utc.from_ymd(2019, 12, 31).and_hms(23, 59, 59).with_timezone(GMT);
 let date_in_future = Utc.from_ymd(2040, 1, 1).and_hms(0, 0, 0);
 let duration = std::time::Duration::from_secs(66_666);
 
@@ -59,17 +49,6 @@ let time_now_minus_duration = time_now - duration;
 let time_now_plus_future: std::time::Duration = time_now + time_in_future;
 let time_now_plus_past: std::time::Duration = time_in_past + time_now;
 let time_now_plus_duration = time_now + duration;
-
-let leap_years: usize = date_in_future.leap_years_since(date_in_past);
-let years: usize = date_in_future.years_since(date_in_past);
-let months: usize = date_in_future.months_since(date_in_past);
-let weeks: usize = date_in_future.weeks_since(date_in_past);
-let days: usize = date_in_future.days_since(date_in_past);
-let hours: usize = date_in_future.hours_since(date_in_past);
-let minutes: usize = date_in_future.minutes_since(date_in_past);
-let seconds: usize = date_in_future.seconds_since(date_in_past);
-let leap_seconds: usize = date_in_future.leap_seconds_since(date_in_past);
-let milliseconds: usize = date_in_future.milliseconds_since(date_in_past);
 
 // Everything is printable in YYYY-MM-DD HH:MM:SS.MS
 println!("{}", now_minus_duration);
