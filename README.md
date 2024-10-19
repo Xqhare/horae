@@ -52,6 +52,7 @@ let time_now_plus_duration = time_now + duration;
 
 // Everything is printable in YYYY-MM-DD HH:MM:SS.MS
 println!("{}", now_minus_duration);
+// Example: 2019-01-01 09:09:09.000
 
 // Or use format for fine-grained control
 println!("{}", now_minus_duration.format("%y-%m-%d %H:%M:%S"));
@@ -60,14 +61,18 @@ println!("{}", now_minus_duration.format("%yy-%m-%d %H:%M:%S"));
 // Example: 19-1-1 9:9:9
 println!("{}", now_minus_duration.format("%yyyy-%mm-%dd %HH:%MM:%SS"));
 // Example: 2019-01-01 09:09:09
+println!("{}", now_minus_duration.format("%yyyy-%mmm-%dd %HH:%MM:%SS"));
+// Example: 2019-JAN-01 09:09:09
+println!("{}", now_minus_duration.format("%yyyy-%mmmm-%dd %HH:%MM:%SS"));
+// Example: 2019-JANUARY-01 09:09:09
 println!("{}", now_minus_duration.format("%yyyy/%mm/%dd:%HH-%MM-%SS"));
 // Example: 2019/01/01:09-09-09
 println!("{}", now_minus_duration.format("%dd-%mm-%yyyy %HH:%MM"));
 // Example: 01-01-2019 09:09
 println!("{}", now_minus_duration.format("%dd-%mm %HH:%MM"));
 // Example: 01-01 09:09
-println!("{}", now_minus_duration.format("%mm %MM"));
-// Example: 01 09
+println!("{}", now_minus_duration.format("%mm %MM.%MS"));
+// Example: 01 09.000
 
 // Quick note: Upper- and lowercase letters matter for the formatter to work. Lowercase for dates, uppercase for times.
 
@@ -79,9 +84,9 @@ println!("{}", now_minus_duration.date());
 println!("{}", now_minus_duration.date().format("%y/%m/%d"));
 // Example: 19/1/1
 
-// For only printing the time, use `.time()`. Format is HH:MM:SS
+// For only printing the time, use `.time()`. Format is HH:MM:SS.MS
 println!("{}", now_minus_duration.time());
-// Example: 09:09:09
+// Example: 09:09:09.000
 
 // Fine-grained control is also possible
 println!("{}", now_minus_duration.time().format("%H-%M-%S"));
