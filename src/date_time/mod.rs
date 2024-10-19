@@ -38,6 +38,18 @@ impl DateTime {
     fn set_timezone(&mut self, timezone: TimeZone) {
         self.timezone = timezone;
     }
+
+    // TODO: add unix_timestamp calculation
+    pub fn from_ymd_hms(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8) -> DateTime {
+        let date = Date::from_ymd(year, month, day);
+        let time = Time::from_hms(hour, minute, second);
+        DateTime {
+            date,
+            time,
+            unix_timestamp: 0.0,
+            timezone: TimeZone::UTC,
+        }
+    }
 }
 
 // Display implementation
