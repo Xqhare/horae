@@ -21,3 +21,9 @@ impl Utc {
         }
     }
 }
+
+impl std::fmt::Display for Utc {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.date_time)
+    }
+}
