@@ -1,7 +1,11 @@
 # Horae
-Basic time and date rust library.
+Dependency-free, basic time and date rust library.
 
 As a hobby project, I don't think it's ready for production use.
+
+## Motivation
+I wrote this library to remove the need for `chrono` or `time` for my time and date handling.
+One more library for my tech-stack.
 
 ## Roadmap
 
@@ -12,6 +16,10 @@ As a hobby project, I don't think it's ready for production use.
     - Subtract one date or time from another date or time
     - Add a date or time and a duration
     - Subtract a date or time and a duration
+
+## Features
+
+- Dependency-free
 
 ## Creating new dates and times
 In general I want the API to feel like this:
