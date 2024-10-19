@@ -93,8 +93,7 @@ pub fn leap_years_since_epoch(years_since_epoch: u16) -> u16 {
     leap_years
 }
 
-/// I dont even know if I need this, leap seconds are not incrimenting the timestamp, it just
-/// repeats a number...
+/// Unix time does not count leap seconds -> add them to the number of seconds
 pub fn leap_seconds_since_epoch(years_since_epoch: u16) -> u16 {
     let mut leap_seconds = 0;
     for tuple in LEAP_SECONDS_ARRAY {
@@ -121,61 +120,48 @@ pub fn make_now_time(rest_timestamp: f64) -> Time {
     Time::from_hmsns(hour, minute, second, rest)
 }
 
-pub fn make_now_date() -> (Date, f64, f64) {
-    let unix_timestamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs_f64();
-    let mut tmp_timestamp = unix_timestamp.clone();
+pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
+    let mut tmp_timestamp = timestamp.clone();
 
-    let days_since_epoch = unix_timestamp / SECONDS_IN_DAY;
-    let years_since_epoch = (days_since_epoch / DAYS_IN_YEAR_APPROX).floor();
+    let years_since_epoch = ((timestamp / SECONDS_IN_DAY).floor() / DAYS_IN_YEAR_APPROX).floor();
     let leap_years = leap_years_since_epoch(years_since_epoch as u16);
-    println!("Leap years: {}", leap_years);
     let year = EPOCH_YEAR + years_since_epoch as u16;
     tmp_timestamp -= years_since_epoch * SECONDS_IN_YEAR;
+    // Somehow the above logic is off by 2 days. I have searched, I have calculated. I dont know
+    // why. I truly am sorry.
+    tmp_timestamp += 2.0 * SECONDS_IN_DAY;
 
-    let days_this_year = (tmp_timestamp / SECONDS_IN_DAY).floor();
-    println!("Days this year: {}", days_this_year);
-    println!("Days this year float: {}", tmp_timestamp / SECONDS_IN_DAY);
+    let days_this_year = (tmp_timestamp / SECONDS_IN_DAY).floor() - leap_years as f64;
+    // remove leap years form tmp_timestamp
+    tmp_timestamp -= leap_years as f64 * SECONDS_IN_DAY;
+    tmp_timestamp -= days_this_year as f64 * SECONDS_IN_DAY;
+
     let mut month: u8 = 0;
     let mut days_into_the_year: u16 = 0;
     while (days_into_the_year as f64) < days_this_year {
-        days_into_the_year += NUMBER_OF_DAYS_PER_MONTH[month.saturating_sub(1) as usize] as u16;
+        days_into_the_year += NUMBER_OF_DAYS_PER_MONTH[month as usize] as u16;
         month += 1;
     }
-    let mut completed_months = month.saturating_sub(1);
-    let mut completed_month_days = 0;
-    for n in 0..completed_months {
-        completed_month_days += NUMBER_OF_DAYS_PER_MONTH[n as usize] as u16;
-    }
-    debug_assert!(days_into_the_year >= completed_month_days);
-    let days_left_in_month = days_into_the_year - completed_month_days;
-    tmp_timestamp -= (completed_month_days as f64) * SECONDS_IN_DAY;
-    let no_leaps_day: u8 = {
-        if days_left_in_month == NUMBER_OF_DAYS_PER_MONTH[completed_months as usize] as u16 {
-            // First day of next month
-            completed_months += 1;
-            tmp_timestamp -= NUMBER_OF_DAYS_PER_MONTH[completed_months as usize] as f64 * SECONDS_IN_DAY;
-            1
-        } else {
-            // Any other day
-            debug_assert!(days_left_in_month <= 31);
-            tmp_timestamp -= days_left_in_month as f64 * SECONDS_IN_DAY;
-            days_left_in_month.try_into().expect("Could not convert u16 to u8. Checked u16 to be smaller than 31")
+    let completed_months = month.saturating_sub(1);
+    let completed_month_days = {
+        let mut out = 1;
+        for i in 0..completed_months {
+            out += NUMBER_OF_DAYS_PER_MONTH[i as usize] as u16;
         }
+        out
     };
+    //let completed_month_days = NUMBER_OF_DAYS_PER_MONTH.iter().take(completed_months as usize).map(|x| *x as u16).sum::<u16>();
+    debug_assert!(days_into_the_year >= completed_month_days as u16);
+    let days_left_in_month = days_this_year as u16 - completed_month_days;
 
-    let day = {
-        if (no_leaps_day as u16) <= leap_years {
-            // We need to go back to the previous month
-            completed_months -= 1;
-            let days_in_previous_month = NUMBER_OF_DAYS_PER_MONTH[completed_months as usize] as u16;
-            (days_in_previous_month - (leap_years - (no_leaps_day as u16))).try_into().expect("Could not convert u16 to u8. Checked u16 to be smaller than 31")
-        } else {
-            ((TryInto::<u16>::try_into(no_leaps_day).expect("Could not convert u16 to u8. Checked u16 to be smaller than 31")) - leap_years).try_into().expect("Could not convert u16 to u8. Checked u16 to be smaller than 31")
-        }
+    let day: u8 = {
+        debug_assert!(days_left_in_month >= 1);
+        debug_assert!(days_left_in_month <= 31);
+        days_left_in_month.try_into().expect("Could not convert.")
     };
     
     // now at most 24 hours are left
     debug_assert!(tmp_timestamp <= SECONDS_IN_DAY);
     let date = Date::from_ymd(year, month, day);
-    (date, tmp_timestamp, unix_timestamp)
+    (date, tmp_timestamp, timestamp)
 }

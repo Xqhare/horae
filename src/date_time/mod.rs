@@ -19,7 +19,7 @@ pub struct DateTime {
 
 impl DateTime {
     pub fn now() -> DateTime {
-        let (date, timestamp, unix_timestamp) = make_now_date();
+        let (date, timestamp, unix_timestamp) = make_now_date(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs_f64());
         let time = make_now_time(timestamp);
         DateTime {
             date,

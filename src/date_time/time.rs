@@ -3,16 +3,17 @@ pub struct Time {
     hour: u8,
     minute: u8,
     second: u8,
-    rest: f64,
+    rest: u64,
 }
 
 impl Time {
     pub fn from_hms(hour: u8, minute: u8, second: u8) -> Time {
-        Time { hour, minute, second, rest: 0.0 }
+        Time { hour, minute, second, rest: 0 }
     }
 
     pub fn from_hmsns(hour: u8, minute: u8, second: u8, rest: f64) -> Time {
-        Time { hour, minute, second, rest }
+        let tmp = rest.fract() * 1_000_000_000.0;
+        Time { hour, minute, second, rest: tmp.floor() as u64 }
     }
 }
 
