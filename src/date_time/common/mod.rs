@@ -2,19 +2,12 @@ use crate::date_time::date::Date;
 
 use super::time::Time;
 
-const HOURS_IN_DAY: u8 = 24;
-const MINUTES_IN_HOUR: u8 = 60;
 const SECONDS_IN_MINUTE: u8 = 60;
 const SECONDS_IN_HOUR: f64 = 3600.0;
 const SECONDS_IN_DAY: f64 = 86_400.0;
 const SECONDS_IN_YEAR: f64 = 31_536_000.0;
 const DAYS_IN_YEAR_APPROX: f64 = 365.0;
 const EPOCH_YEAR: u16 = 1970;
-const EPOCH_MONTH: u8 = 1;
-const EPOCH_DAY: u8 = 1;
-const EPOCH_HOUR: u8 = 0;
-const EPOCH_MINUTE: u8 = 0;
-const EPOCH_SECOND: u8 = 0;
 const NUMBER_OF_DAYS_PER_MONTH: [u8; 12] = [
     31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 ];
@@ -94,6 +87,10 @@ pub fn leap_years_since_epoch(years_since_epoch: u16) -> u16 {
 }
 
 /// Unix time does not count leap seconds -> add them to the number of seconds
+///
+/// I am accurate to the second without it...
+/// Im gonna leave it it because it was a lot of works
+#[allow(dead_code)]
 pub fn leap_seconds_since_epoch(years_since_epoch: u16) -> u16 {
     let mut leap_seconds = 0;
     for tuple in LEAP_SECONDS_ARRAY {
