@@ -1,4 +1,4 @@
-use common::{make_now_date, make_now_time};
+use common::{days_in_month, make_now_date, make_now_time};
 use date::Date;
 use time::Time;
 
@@ -51,35 +51,46 @@ impl DateTime {
         // TODO what about years?
         if utc_offset_hours.is_positive() {
             let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
-            if tmp_hour_bind >= 24 {
+            // While possibly bigger than 24, will never be bigger than 36. 
+            // + 12h to UTC
+            if tmp_hour_bind > 23 {
                 // next day && possibly next month && possibly next year
+                if self.date.day + 1 > days_in_month(self.date.month) {
+                    // next month && possibly next year
+                    if self.date.month + 1 > 12 {
+                        // next year
+                        self.date.year += 1;
+                        self.date.month = 1;
+                    } else {
+                        self.date.month += 1;
+                    }
+                    self.date.day = 1;
+                } else {
+                    self.date.day += 1;
+                }
+                let rest_hours = tmp_hour_bind - (24 - self.time.hour as i16);
+                debug_assert!(rest_hours < 24);
+                self.time.hour = TryInto::<u8>::try_into(rest_hours).expect("Everything checked!");
             } else {
+                // Same day
                 self.time.hour = TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
             }
+
             let tmp_minute_bind = self.time.minute + utc_offset_minutes;
-            if tmp_minute_bind >= 60 {
-                self.time.minute = tmp_minute_bind - 60;
+            // Again while bigger than 60, will never be bigger than 105 or so
+            if tmp_minute_bind > 59 {
                 self.time.hour += 1;
+                // calc rest minutes of hour
+                let rest_minutes = tmp_minute_bind - (60 - self.time.minute);
+                debug_assert!(rest_minutes < 60);
+                // add difference to next hour minutes
+                self.time.minute = rest_minutes;
             } else {
                 self.time.minute = tmp_minute_bind;
             }
         // TODO
         } else {
-            if self.time.hour as i16 >= utc_offset_hours {
-                // Same day
-                self.time.hour = self.time.hour - TryInto::<u8>::try_into(utc_offset_hours).expect("Everything checked!");
-                if self.time.minute >= utc_offset_minutes {
-                    // Same hour
-                    self.time.minute -= utc_offset_minutes;
-                } else {
-                    // Different hour
-                    self.time.hour -= 1;
-                    let tmp_minute_bind = utc_offset_minutes - self.time.minute;
-                    self.time.minute = 60 - tmp_minute_bind;
-                }
-            } else {
-                // +- offset minutes are not handled yet! -> Could still be the same day
-            }
+            
         }
         
     }
