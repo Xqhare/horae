@@ -126,7 +126,7 @@ pub fn make_now_time(rest_timestamp: f64) -> Time {
 pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     let mut tmp_timestamp = timestamp.clone();
 
-    let years_since_epoch = ((timestamp / SECONDS_IN_DAY).floor() / DAYS_IN_YEAR_APPROX).floor();
+    let years_since_epoch = ((timestamp / SECONDS_IN_DAY).trunc() / DAYS_IN_YEAR_APPROX).trunc();
     let leap_years = leap_years_since_epoch(years_since_epoch as u16);
     let year = EPOCH_YEAR + years_since_epoch as u16;
     tmp_timestamp -= years_since_epoch * SECONDS_IN_YEAR;
@@ -134,7 +134,7 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     // why. I truly am sorry.
     tmp_timestamp += 2.0 * SECONDS_IN_DAY;
 
-    let days_this_year = (tmp_timestamp / SECONDS_IN_DAY).floor() - leap_years as f64;
+    let days_this_year = (tmp_timestamp / SECONDS_IN_DAY).trunc() - leap_years as f64;
     // remove leap years form tmp_timestamp
     tmp_timestamp -= leap_years as f64 * SECONDS_IN_DAY;
     tmp_timestamp -= days_this_year as f64 * SECONDS_IN_DAY;
