@@ -32,7 +32,7 @@ impl DateTime {
     pub fn with_timezone(&mut self, timezone: TimeZone) {
         let (utc_offset_hours, utc_offset_minutes) = {
             let tmp = timezone.get_utc_offset();
-            let hours = tmp.floor() as i16;
+            let hours = tmp.trunc() as i16;
             let minutes: u8 = {
                 match tmp.fract() {
                     // These are the only fractions to exist - For now I am sure
@@ -48,7 +48,7 @@ impl DateTime {
         self.set_timezone(timezone);
 
         // First calculate new time, if hour is negative, go back 1 day
-        // TODO what about years?
+        // Doneish
         if utc_offset_hours.is_positive() {
             let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
             // While possibly bigger than 24, will never be bigger than 36. 
@@ -88,9 +88,49 @@ impl DateTime {
             } else {
                 self.time.minute = tmp_minute_bind;
             }
-        // TODO
+        // Doneish
         } else {
-            
+            // utc_offset_hours is negative!
+            let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
+            // While possibly smaller than 0, will never be smaller than -12 or so. 
+            // - 12h to UTC
+            if tmp_hour_bind.is_negative() {
+                // previous day && possibly previous month && possibly previous year
+                if self.date.day - 1 == 0 {
+                    // previous month && possibly previous year
+                    if self.date.month - 1 == 0 {
+                        // previous year
+                        self.date.year -= 1;
+                        self.date.month = 12;
+                    } else {
+                        self.date.month -= 1;
+                    }
+                    self.date.day = days_in_month(self.date.month);
+                } else {
+                    self.date.day -= 1;
+                }
+                let actual_rest_hours = 24 + tmp_hour_bind;
+                self.time.hour = TryInto::<u8>::try_into(actual_rest_hours).expect("Everything checked!");
+            } else {
+                // Same day
+                self.time.hour = TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
+            }
+
+            // TODO
+            // utc_offset_minutes is positive, but needs to be subtracted
+            let tmp_minute_bind = self.time.minute as i8 - utc_offset_minutes as i8;
+            // Again while smaller than 0, will never be smaller than -45 or so
+            if tmp_minute_bind.is_negative() {
+                self.time.hour -= 1;
+                // calc rest minutes of hour
+                let rest_minutes = 60 + tmp_minute_bind;
+                debug_assert!(rest_minutes < 60);
+                // add difference to next hour minutes
+                self.time.minute = rest_minutes as u8;
+            } else {
+                debug_assert!(tmp_minute_bind < 60);
+                self.time.minute = tmp_minute_bind as u8;
+            }
         }
         
     }
