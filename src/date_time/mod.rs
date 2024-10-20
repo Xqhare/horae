@@ -48,7 +48,6 @@ impl DateTime {
         self.set_timezone(timezone);
 
         // First calculate new time, if hour is negative, go back 1 day
-        // Doneish
         if utc_offset_hours.is_positive() {
             let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
             // While possibly bigger than 24, will never be bigger than 36. 
@@ -88,7 +87,6 @@ impl DateTime {
             } else {
                 self.time.minute = tmp_minute_bind;
             }
-        // Doneish
         } else {
             // utc_offset_hours is negative!
             let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
@@ -116,7 +114,6 @@ impl DateTime {
                 self.time.hour = TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
             }
 
-            // TODO
             // utc_offset_minutes is positive, but needs to be subtracted
             let tmp_minute_bind = self.time.minute as i8 - utc_offset_minutes as i8;
             // Again while smaller than 0, will never be smaller than -45 or so
