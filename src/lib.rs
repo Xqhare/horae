@@ -1,8 +1,9 @@
 use date_time::DateTime;
-use time_zones::TimeZone;
 
 mod date_time;
 mod time_zones;
+
+pub use crate::time_zones::TimeZone;
 
 pub struct Utc {
     date_time: DateTime,
