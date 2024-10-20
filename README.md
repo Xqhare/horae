@@ -11,17 +11,17 @@ One more library for my tech-stack.
 
 ## Roadmap
 
-- Local date and time in specified timezone
 - Basic Date and time arithmetic
     - Add a date and time and a duration
     - Subtract a date and time and a duration
-- Supports 200 Timezones
 
 ## Features
 
 - Dependency-free
 - Current UTC date and time
     - Creating the current date and time takes about 10 microseconds
+- Local date and time in specified timezone
+    - Supports 200 Timezones
 
 ## Creating new dates and times
 In general I want the API to feel like this:
