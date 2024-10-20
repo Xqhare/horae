@@ -26,6 +26,12 @@ impl Utc {
             date_time: DateTime::from_ymd_hms(year, month, day, hour, minute, second),
         }
     }
+
+    pub fn from_ymd_hms_timezone(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8, timezone: TimeZone) -> Utc {
+        Utc {
+            date_time: DateTime::from_ymd_hms_timezone(year, month, day, hour, minute, second, timezone),
+        }
+    }
 }
 
 impl std::fmt::Display for Utc {
