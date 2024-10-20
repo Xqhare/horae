@@ -3,6 +3,8 @@ Dependency-free, basic time and date rust library.
 
 As a hobby project, I don't think it's ready for production use.
 
+Horae is only as accurate as the UNIX time-stamp provided by the operating system.
+
 ## Motivation
 I wrote this library to remove the need for `chrono` or `time` for my time and date handling.
 One more library for my tech-stack.
@@ -82,7 +84,7 @@ println!("{}", now_minus_duration.time().format("%H-%M-%S"));
 ## Timezone
 
 ### Supported Timezones
-All supported capitals can be found [here](https://en.wikipedia.org/wiki/List_of_time_zone_abbreviations).
+All supported timezones can be found [here](https://en.wikipedia.org/wiki/List_of_time_zone_abbreviations).
 
 ## Leap Seconds
 > WIP Leap seconds are not handled yet.
