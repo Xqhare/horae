@@ -2,10 +2,10 @@ use crate::date_time::date::Date;
 
 use super::time::Time;
 
-const SECONDS_IN_MINUTE: u8 = 60;
-const SECONDS_IN_HOUR: f64 = 3600.0;
-const SECONDS_IN_DAY: f64 = 86_400.0;
-const SECONDS_IN_YEAR: f64 = 31_536_000.0;
+pub const SECONDS_IN_MINUTE: u8 = 60;
+pub const SECONDS_IN_HOUR: f64 = 3600.0;
+pub const SECONDS_IN_DAY: f64 = 86_400.0;
+pub const SECONDS_IN_YEAR: f64 = 31_536_000.0;
 const DAYS_IN_YEAR_APPROX: f64 = 365.0;
 const EPOCH_YEAR: u16 = 1970;
 const NUMBER_OF_DAYS_PER_MONTH: [u8; 12] = [
