@@ -1,4 +1,4 @@
-use common::{days_in_month, make_now_date, make_now_time};
+use common::{days_in_month, leap_years_since_epoch, make_now_date, make_now_time, SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR};
 use date::Date;
 use time::Time;
 
@@ -67,7 +67,7 @@ impl DateTime {
                 } else {
                     self.date.day += 1;
                 }
-                let rest_hours = tmp_hour_bind - (24 - self.time.hour as i16);
+                let rest_hours = tmp_hour_bind - self.time.hour as i16;
                 debug_assert!(rest_hours < 24);
                 self.time.hour = TryInto::<u8>::try_into(rest_hours).expect("Everything checked!");
             } else {
@@ -80,7 +80,7 @@ impl DateTime {
             if tmp_minute_bind > 59 {
                 self.time.hour += 1;
                 // calc rest minutes of hour
-                let rest_minutes = tmp_minute_bind - (60 - self.time.minute);
+                let rest_minutes = tmp_minute_bind - self.time.minute;
                 debug_assert!(rest_minutes < 60);
                 // add difference to next hour minutes
                 self.time.minute = rest_minutes;
@@ -136,28 +136,37 @@ impl DateTime {
         self.timezone = timezone;
     }
 
-    // TODO: add unix_timestamp calculation
     pub fn from_ymd_hms(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8) -> DateTime {
         let date = Date::from_ymd(year, month, day);
         let time = Time::from_hms(hour, minute, second);
+        let leap_years = leap_years_since_epoch(year);
+        let years_in_sec = leap_years as f64 * SECONDS_IN_YEAR;
+        let months_in_sec: f64 = {
+            let mut total_days: u16 = 0;
+            for i in 1..=(month) {
+                total_days += days_in_month(i) as u16;
+            }
+            total_days as f64 * SECONDS_IN_DAY
+        };
+        let days_in_sec = {
+            let total_days = day as u16 + leap_years;
+            total_days as f64 * SECONDS_IN_DAY
+        };
+        let hours_in_sec = hour as f64 * SECONDS_IN_HOUR;
+        let minutes_in_sec: f64 = minute as f64 * SECONDS_IN_MINUTE as f64;
+        let unix_timestamp = years_in_sec + months_in_sec + days_in_sec + hours_in_sec + minutes_in_sec as f64 + second as f64;
         DateTime {
             date,
             time,
-            unix_timestamp: 0.0,
+            unix_timestamp,
             timezone: TimeZone::Utc,
         }
     }
 
-    // TODO: add unix_timestamp calculation
     pub fn from_ymd_hms_timezone(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8, timezone: TimeZone) -> DateTime {
-        let date = Date::from_ymd(year, month, day);
-        let time = Time::from_hms(hour, minute, second);
-        DateTime {
-            date,
-            time,
-            unix_timestamp: 0.0,
-            timezone,
-        }
+        let mut out = DateTime::from_ymd_hms(year, month, day, hour, minute, second);
+        out.with_timezone(timezone);
+        out
     }
 }
 
