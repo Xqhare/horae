@@ -13,6 +13,7 @@ One more library for my tech-stack.
 - Basic Date and time arithmetic
     - Add a date and time and a duration
     - Subtract a date and time and a duration
+- Supports 200 Timezones
 
 ## Features
 
@@ -28,7 +29,7 @@ let utc_now = Utc::now();
 let _now_in_gmt = Utc::now().with_timezone(GMT);
 
 let date_in_past = Utc.from_ymd_hms(2019, 12, 31, 23, 59, 59);
-let _date_in_past_gmt = Utc.from_ymd_hms(2019, 12, 31, 23, 59, 59).with_timezone(GMT);
+let _date_in_past_gmt = Utc.from_ymd_hms_timezone(2019, 12, 31, 23, 59, 59, GMT);
 let date_in_future = Utc.from_ymd_hms(2040, 1, 1, 0, 0, 0);
 let duration = std::time::Duration::from_secs(66_666);
 
