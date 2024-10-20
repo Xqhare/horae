@@ -1,5 +1,4 @@
 
-use std::thread::sleep;
 
 use horae::Utc;
 
@@ -9,7 +8,6 @@ fn creation_datetime_utc() {
     let dt = Utc::now();
     println!("{}", dt);
     println!("Microseconds elapsed: {}", instant.elapsed().as_micros());
-    sleep(std::time::Duration::from_micros(10));
     let dt2 = Utc::now();
     println!("{}", dt2);
 }
