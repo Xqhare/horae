@@ -1,3 +1,6 @@
+
+/// All supported timezones can be found [here](https://en.wikipedia.org/wiki/List_of_time_zone_abbreviations).
+/// The list is up to date as of 2024-10-20;
 pub enum TimeZone {
     Utc,
     AustralianCentralDaylightSavingTime,
