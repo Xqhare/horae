@@ -70,6 +70,12 @@ const LEAP_SECONDS_ARRAY: [(u16, (bool, bool)); 53] = [
     (2024, (false, false)),
 ];
 
+/// Takes the actual month number (January is 1)
+/// and returns the number of days in that month
+pub fn days_in_month(month: u8) -> u8 {
+    NUMBER_OF_DAYS_PER_MONTH[month as usize - 1]
+}
+
 pub fn leap_years_since_epoch(years_since_epoch: u16) -> u16 {
     let mut leap_years = 0;
     for year in 1970..=(1970 + years_since_epoch) {
