@@ -1,7 +1,7 @@
 
 pub struct Time {
-    hour: u8,
-    minute: u8,
+    pub hour: u8,
+    pub minute: u8,
     second: u8,
     rest: u64,
 }
