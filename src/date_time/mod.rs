@@ -47,6 +47,11 @@ impl DateTime {
         };
         self.set_timezone(timezone);
 
+        // TODO: Problem:  
+        // for an off set like 13.75 on a date like 2020-12-31 23:59:59
+        // the result should be 2021-01-01 13:44:59
+        // Currently it is 2021-01-01 14:45:59
+
         // First calculate new time, if hour is negative, go back 1 day
         if utc_offset_hours.is_positive() {
             let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
