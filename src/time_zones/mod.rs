@@ -1,6 +1,7 @@
 
 /// All supported timezones can be found [here](https://en.wikipedia.org/wiki/List_of_time_zone_abbreviations).
 /// The list is up to date as of 2024-10-20;
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum TimeZone {
     Utc,
     AustralianCentralDaylightSavingTime,
@@ -206,6 +207,30 @@ pub enum TimeZone {
     WesternStandardTime,
     YakutskTime,
     YekaterinburgTime,
+}
+
+// Display implementation
+
+impl std::fmt::Display for TimeZone {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let tmp_self_bind = format!("{:?}", self);
+        let tmp_self = tmp_self_bind.replace("\"", "");
+        let tmp_self = tmp_self.replace("TimeZone::", "");
+        // its ascii!
+        let mut tmp = tmp_self.chars().map(|c| {
+            if c.is_uppercase() {
+                " ".to_string() + &c.to_string()
+            } else {
+                c.to_string()
+            }
+        }).collect::<String>();
+        tmp = tmp.trim().to_string();
+        // hacky but hey
+        if tmp == "Utc" {
+            tmp = "Coordinated Universal Time".to_string();
+        }
+        write!(f, "{}", tmp)
+    }
 }
 
 impl TimeZone {
