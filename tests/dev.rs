@@ -40,3 +40,17 @@ fn from_ymd_hms_without_timezone() {
     println!("{}", dt);
     println!("Microseconds elapsed: {}", instant.elapsed().as_micros());
 }
+
+#[test]
+fn print_timezones() {
+    println!("{}", TimeZone::IrkutskTime);
+    println!("{}", TimeZone::CentralEuropeanSummerTime);
+    println!("{}", TimeZone::ChathamDaylightTime);
+    println!("{}", TimeZone::ChathamStandardTime);
+    println!("{}", TimeZone::CentralAfricaTime);
+    println!("{}", TimeZone::GreenwichMeanTime);
+    println!("{}", TimeZone::VenezuelanStandardTime);
+    println!("{}", TimeZone::Utc);
+}
+
+// TODO Test negative utc offsets and rollovers
