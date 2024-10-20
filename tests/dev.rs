@@ -22,3 +22,21 @@ fn creation_datetime_utc_with_timezone() {
     let dt2 = Utc::now();
     println!("UTC: {}", dt2);
 }
+
+#[test]
+fn from_ymd_hms_with_timezone() {
+    let instant = std::time::Instant::now();
+    let dt = Utc::from_ymd_hms_timezone(2021, 12, 31, 23, 59, 59, TimeZone::CentralEuropeanSummerTime);
+    println!("Rollover positive CEST: {}", dt);
+    println!("Microseconds elapsed: {}", instant.elapsed().as_micros());
+    let chatham = Utc::from_ymd_hms_timezone(2021, 12, 31, 23, 59, 59, TimeZone::ChathamDaylightTime);
+    println!("Rollover positive Chatham(+13.75): {}", chatham);
+}
+
+#[test]
+fn from_ymd_hms_without_timezone() {
+    let instant = std::time::Instant::now();
+    let dt = Utc::from_ymd_hms(2021, 12, 31, 23, 59, 59);
+    println!("{}", dt);
+    println!("Microseconds elapsed: {}", instant.elapsed().as_micros());
+}
