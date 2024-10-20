@@ -15,10 +15,8 @@ impl Utc {
         }
     }
 
-    pub fn with_timezone(timezone: TimeZone) -> Utc {
-        Utc {
-            date_time: DateTime::with_timezone(timezone),
-        }
+    pub fn with_timezone(&mut self, timezone: TimeZone) {
+        self.date_time.with_timezone(timezone);
     }
 
     pub fn from_ymd_hms(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8) -> Utc {
@@ -27,6 +25,7 @@ impl Utc {
         }
     }
 
+    // TODO Finish
     pub fn from_ymd_hms_timezone(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8, timezone: TimeZone) -> Utc {
         Utc {
             date_time: DateTime::from_ymd_hms_timezone(year, month, day, hour, minute, second, timezone),
