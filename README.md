@@ -1,7 +1,10 @@
 # Horae
 Dependency-free, basic time and date rust library.
 
-As a hobby project, I don't think it's ready for production use.
+> ![info] As a hobby project, I don't think it's ready for production use.
+
+Horae should never panic. [More here](#panics).
+Only dates after January 1, 1970, are supported.
 
 Horae is only as accurate as the UNIX time-stamp provided by the operating system.
 
@@ -30,19 +33,20 @@ One more library for my tech-stack.
     - Average times observed were 120, 134, 140 nanoseconds.
 
 ## Panics
-Horae should never panic. There is one panic in the library, a system error if UNIX time could not be obtained.
+There is one panic in the library, a system error if UNIX time could not be obtained.
 
 This should almost never happen.
 
 ## Creating new dates and times
 In general I want the API to feel like this:
 ```rust
+use horae::{TimeZone, Utc};
 
 let utc_now = Utc::now();
-let _now_in_gmt = Utc::now().with_timezone(GMT);
+let _now_in_gmt = Utc::now().with_timezone(TimeZone::GreenwichMeanTime);
 
 let date_in_past = Utc.from_ymd_hms(2019, 12, 31, 23, 59, 59);
-let _date_in_past_gmt = Utc.from_ymd_hms_timezone(2019, 12, 31, 23, 59, 59, GMT);
+let _date_in_past_gmt = Utc.from_ymd_hms_timezone(2019, 12, 31, 23, 59, 59, TimeZone::GreenwichMeanTime);
 let date_in_future = Utc.from_ymd_hms(2040, 1, 1, 0, 0, 0);
 let duration = std::time::Duration::from_secs(66_666);
 
@@ -62,16 +66,16 @@ println!("{}", now_minus_duration.format("%yyyy-%mm-%dd %HH:%MM:%SS"));
 // Example: 2019-01-01 09:09:09
 println!("{}", now_minus_duration.format("%yyyy-%mmm-%dd %HH:%MM:%SS"));
 // Example: 2019-JAN-01 09:09:09
-println!("{}", now_minus_duration.format("%yyyy-%mmmm-%dd %HH:%MM:%SS"));
-// Example: 2019-JANUARY-01 09:09:09
+println!("{}", now_minus_duration.format("%yyyy-%mmmm-%dd %HH:%MM:%SS.%MS"));
+// Example: 2019-JANUARY-01 09:09:09.000
 println!("{}", now_minus_duration.format("%yyyy/%mm/%dd:%HH-%MM-%SS"));
 // Example: 2019/01/01:09-09-09
 println!("{}", now_minus_duration.format("%dd-%mm-%yyyy %HH:%MM"));
 // Example: 01-01-2019 09:09
 println!("{}", now_minus_duration.format("%dd-%mm %HH:%MM"));
 // Example: 01-01 09:09
-println!("{}", now_minus_duration.format("%mm %MM.%MSSSS"));
-// Example: 01 09.000000000
+println!("{}", now_minus_duration.format("%mm %MM.%MS"));
+// Example: 01 09.000
 
 // Quick note: Upper- and lowercase letters matter for the formatter to work. Lowercase for dates, uppercase for times.
 
