@@ -1,4 +1,5 @@
 
+#[derive(Debug, Copy, Clone)]
 pub struct Time {
     pub hour: u8,
     pub minute: u8,

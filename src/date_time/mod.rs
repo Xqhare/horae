@@ -1,4 +1,6 @@
-use common::{days_in_month, leap_years_since_epoch, make_now_date, make_now_time, SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR};
+use std::ops::Sub;
+
+use common::{days_in_month, is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time, SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR};
 use date::Date;
 use time::Time;
 
@@ -9,30 +11,17 @@ mod time;
 mod common;
 
 
-
+#[derive(Debug, Copy, Clone)]
 pub struct DateTime {
     date: Date,
     time: Time,
-    unix_timestamp: f64,
-    timezone: TimeZone,
+    pub unix_timestamp: f64,
+    pub timezone: TimeZone,
 }
 
 impl DateTime {
     pub fn now() -> DateTime {
-        // TODO: ONLY EXPECT WITHOUT LOGICAL REASON FOR ALWAYS BEING OK
-        // expect is Ok because we are using std::time::SystemTime and System errors are
-        // highly unlikely.
-        //
-        // Plan A: make a default DateTime and fall back to this if it fails
-        //          - UTC Epoch of 1970-01-01T00:00:00Z maybe
-        // 
-        // Plan B: return the error
-        //
-        // Plan C: panic!
-        //          - makes the expect more nice I guess?
-        //let (date, timestamp, unix_timestamp) = make_now_date(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).expect("System Error!").as_secs_f64());
-
-        // Plan C: panic!
+        // Only logically unguarded panic in the library below!
         let (date, timestamp, unix_timestamp) = {
             let timestamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH);
             match timestamp {
@@ -42,6 +31,17 @@ impl DateTime {
             
         };
         let time = make_now_time(timestamp);
+        DateTime {
+            date,
+            time,
+            unix_timestamp,
+            timezone: TimeZone::Utc,
+        }
+    }
+
+    pub fn from_timestamp(timestamp: f64) -> DateTime {
+        let (date, new_timestamp, unix_timestamp) = make_now_date(timestamp);
+        let time = make_now_time(new_timestamp);
         DateTime {
             date,
             time,
@@ -176,25 +176,45 @@ impl DateTime {
         self.timezone = timezone;
     }
 
+    /// This function will panic if supplied arguments are out of range for their respective fields
     pub fn from_ymd_hms(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8) -> DateTime {
+        assert!(year >= 1970);
+        assert!(month >= 1 && month <= 12);
+        assert!(day >= 1 && day <= 31);
+        assert!(hour <= 23);
+        assert!(minute <= 59);
+        assert!(second <= 59);
         let date = Date::from_ymd(year, month, day);
         let time = Time::from_hms(hour, minute, second);
-        let leap_years = leap_years_since_epoch(year);
-        let years_in_sec = leap_years as f64 * SECONDS_IN_YEAR;
+
+        let years = year - 1970;
+        let leap_years = {
+            let tmp = leap_years_since_epoch(years);
+            if month <= 2 && is_this_year_leap_year(year) {
+                tmp - 1
+            } else {
+                tmp
+            }
+        };
+        let years_in_sec = years as f64 * SECONDS_IN_YEAR;
         let months_in_sec: f64 = {
             let mut total_days: u16 = 0;
-            for i in 1..=(month) {
+            for i in 1..month {
                 total_days += days_in_month(i) as u16;
             }
             total_days as f64 * SECONDS_IN_DAY
         };
+
+        // The calculated date is now on the first of this month.
+        // Because of this we need to subtract 1 from day
         let days_in_sec = {
             let total_days = day as u16 + leap_years;
             total_days as f64 * SECONDS_IN_DAY
         };
         let hours_in_sec = hour as f64 * SECONDS_IN_HOUR;
         let minutes_in_sec: f64 = minute as f64 * SECONDS_IN_MINUTE as f64;
-        let unix_timestamp = years_in_sec + months_in_sec + days_in_sec + hours_in_sec + minutes_in_sec as f64 + second as f64;
+        let unix_timestamp = years_in_sec + months_in_sec + days_in_sec + hours_in_sec + minutes_in_sec + second as f64;
+        println!("NEW UNIX TIMESTAMP: {}", unix_timestamp);
         DateTime {
             date,
             time,

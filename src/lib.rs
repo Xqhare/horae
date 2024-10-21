@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use date_time::DateTime;
 
 mod date_time;
@@ -5,6 +7,7 @@ mod time_zones;
 
 pub use crate::time_zones::TimeZone;
 
+#[derive(Debug, Clone, Copy)]
 pub struct Utc {
     date_time: DateTime,
 }
@@ -32,6 +35,38 @@ impl Utc {
         }
     }
 }
+
+// Add duration implementation
+
+impl std::ops::Add<Duration> for Utc {
+    type Output = Utc;
+
+    fn add(self, rhs: Duration) -> Utc {
+        let new_timestamp = self.date_time.unix_timestamp + rhs.as_secs_f64();
+        let mut date_time = DateTime::from_timestamp(new_timestamp);
+        date_time.with_timezone(self.date_time.timezone);
+        Utc {
+            date_time,
+        }
+    }
+}
+
+// Sub duration implementation
+
+impl std::ops::Sub<Duration> for Utc {
+    type Output = Utc;
+
+    fn sub(self, rhs: Duration) -> Utc {
+        let new_timestamp = self.date_time.unix_timestamp - rhs.as_secs_f64();
+        let mut date_time = DateTime::from_timestamp(new_timestamp);
+        date_time.with_timezone(self.date_time.timezone);
+        Utc {
+            date_time,
+        }
+    }
+}
+
+// Display implementation
 
 impl std::fmt::Display for Utc {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

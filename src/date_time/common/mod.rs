@@ -92,6 +92,19 @@ pub fn leap_years_since_epoch(years_since_epoch: u16) -> u16 {
     leap_years
 }
 
+pub fn is_this_year_leap_year(year: u16) -> bool {
+    if year % 4 == 0 {
+        if year % 100 == 0 {
+            if year % 400 == 0 {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+    false
+}
+
 /// Unix time does not count leap seconds -> add them to the number of seconds
 ///
 /// I am accurate to the second without it...
@@ -132,7 +145,7 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     tmp_timestamp -= years_since_epoch * SECONDS_IN_YEAR;
     // Somehow the above logic is off by 2 days. I have searched, I have calculated. I dont know
     // why. I truly am sorry.
-    tmp_timestamp += 2.0 * SECONDS_IN_DAY;
+    tmp_timestamp += SECONDS_IN_DAY;
 
     let days_this_year = (tmp_timestamp / SECONDS_IN_DAY).trunc() - leap_years as f64;
     // remove leap years form tmp_timestamp
@@ -168,5 +181,6 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     // now at most 24 hours are left
     debug_assert!(tmp_timestamp <= SECONDS_IN_DAY);
     let date = Date::from_ymd(year, month, day);
+    println!("Date: {:?}, timestamp: {}, tmp_timestamp: {}", date, timestamp, tmp_timestamp);
     (date, tmp_timestamp, timestamp)
 }
