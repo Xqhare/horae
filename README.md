@@ -19,8 +19,7 @@ One more library for my tech-stack.
 ## Features
 - Dependency-free
 - Current UTC date and time
-    - On average, creating the current date and time takes about 130 nanoseconds.
-
+    - On average, creating the current date and time takes 100 to 150 nanoseconds.
 - Local date and time in specified timezone
     - Supports 200 Timezones
 
@@ -28,7 +27,12 @@ One more library for my tech-stack.
 - No Guaranteed maximum creation time. 
     - In testing, with release optimization, generating 100 million `Utc::now` instances took about 15 seconds.
     - Maximum time observed never exceeded 0.5 seconds for a single instance after testing several hundred million generations.
-    - Average time observed was 134 nanoseconds.
+    - Average times observed were 120, 134, 140 nanoseconds.
+
+## Panics
+Horae should never panic. There is one panic in the library, a system error if UNIX time could not be obtained.
+
+This should almost never happen.
 
 ## Creating new dates and times
 In general I want the API to feel like this:
