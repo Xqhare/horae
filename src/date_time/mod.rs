@@ -208,13 +208,12 @@ impl DateTime {
         // The calculated date is now on the first of this month.
         // Because of this we need to subtract 1 from day
         let days_in_sec = {
-            let total_days = day as u16 + leap_years;
+            let total_days = day as u16 + leap_years - 1;
             total_days as f64 * SECONDS_IN_DAY
         };
         let hours_in_sec = hour as f64 * SECONDS_IN_HOUR;
         let minutes_in_sec: f64 = minute as f64 * SECONDS_IN_MINUTE as f64;
         let unix_timestamp = years_in_sec + months_in_sec + days_in_sec + hours_in_sec + minutes_in_sec + second as f64;
-        println!("NEW UNIX TIMESTAMP: {}", unix_timestamp);
         DateTime {
             date,
             time,
@@ -236,4 +235,18 @@ impl std::fmt::Display for DateTime {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{} {}", self.date, self.time)
     }
+}
+
+#[test]
+fn from_timestamp() {
+    let ts_1999_04_21_10_02_45 = DateTime::from_timestamp(924688965.0);
+    assert_eq!("1999-04-21 10:02:45.000".to_string(), format!("{}", ts_1999_04_21_10_02_45));
+    let ts_1976_01_01_00_00_00 = DateTime::from_timestamp(189298800.0);
+    assert_eq!("1975-12-31 23:00:00.000".to_string(), format!("{}", ts_1976_01_01_00_00_00));
+    let ts_1970_01_14_02_03_10 = DateTime::from_timestamp(1130590.958881855);
+    assert_eq!("1970-01-14 02:03:10.958881855".to_string(), format!("{}", ts_1970_01_14_02_03_10));
+    let ts_2054_06_10_08_36_47 = DateTime::from_timestamp(2664686207.0);
+    assert_eq!("2054-06-10 06:36:47.000".to_string(), format!("{}", ts_2054_06_10_08_36_47));
+    let ts_5997_01_15_05_27_14 = DateTime::from_timestamp(32410297634.0);
+    assert_eq!("2997-01-15 05:27:14.000".to_string(), format!("{}", ts_5997_01_15_05_27_14));
 }

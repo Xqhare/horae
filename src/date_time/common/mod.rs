@@ -140,16 +140,12 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     let mut tmp_timestamp = timestamp.clone();
 
     let years_since_epoch = ((timestamp / SECONDS_IN_DAY).trunc() / DAYS_IN_YEAR_APPROX).trunc();
-    let leap_years = leap_years_since_epoch(years_since_epoch as u16);
-    let year = EPOCH_YEAR + years_since_epoch as u16;
+    let mut leap_years = leap_years_since_epoch(years_since_epoch as u16);
+    let mut year = EPOCH_YEAR + years_since_epoch as u16;
     tmp_timestamp -= years_since_epoch * SECONDS_IN_YEAR;
-    // Somehow the above logic is off by 2 days. I have searched, I have calculated. I dont know
-    // why. I truly am sorry.
-    tmp_timestamp += SECONDS_IN_DAY;
 
-    let days_this_year = (tmp_timestamp / SECONDS_IN_DAY).trunc() - leap_years as f64;
-    // remove leap years form tmp_timestamp
-    tmp_timestamp -= leap_years as f64 * SECONDS_IN_DAY;
+    let days_this_year = (tmp_timestamp / SECONDS_IN_DAY).trunc();
+    //tmp_timestamp -= leap_years as f64 * SECONDS_IN_DAY;
     tmp_timestamp -= days_this_year as f64 * SECONDS_IN_DAY;
 
     let mut month: u8 = 0;
@@ -160,14 +156,54 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     }
     let completed_months = month.saturating_sub(1);
     let completed_month_days = {
-        let mut out = 1;
+        let mut out = 0;
         for i in 0..completed_months {
             out += NUMBER_OF_DAYS_PER_MONTH[i as usize] as u16;
         }
         out
     };
+
+    if month <= 2 && is_this_year_leap_year(year) {
+        leap_years -= 1;
+    }
+
     debug_assert!(days_into_the_year >= completed_month_days as u16);
-    let days_left_in_month = days_this_year as u16 - completed_month_days;
+
+    let mut days_left_in_month: i16 = days_this_year as i16 - completed_month_days as i16 - leap_years as i16;
+    println!("days left in month: {}; days this year: {}; completed month days: {}; leap years: {}", days_left_in_month, days_this_year, completed_month_days, leap_years);
+
+
+    // Because the 0.th is not the 1.st!
+    days_left_in_month += 1;
+
+    println!("days left in month: {}", days_left_in_month);
+    // TODO: fix below, if leap_years = 250
+    if days_left_in_month.is_negative() {
+        if month <= 1 {
+            // OH GOD NO! THE YEAR IS OVER!
+            year -= 1;
+            month = 12;
+            days_left_in_month = days_in_month(month) as i16 + days_left_in_month;
+        } else {
+            month -= 1;
+            days_left_in_month = days_in_month(month) as i16 + days_left_in_month;
+        }
+    }
+    println!("????days left in month: {}", days_left_in_month);
+
+    // Oh no! There are 0 days left!
+    // Its the previous month's last day, possibly previous year's last day
+    if days_left_in_month == 0 {
+        if month <= 1 {
+            // OH GOD NO! THE YEAR IS OVER!
+            year -= 1;
+            month = 12;
+            days_left_in_month = days_in_month(month) as i16;
+        } else {
+            month -= 1;
+            days_left_in_month = days_in_month(month) as i16;
+        }
+    }
 
     let day: u8 = {
         debug_assert!(days_left_in_month >= 1);
@@ -175,12 +211,12 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
         // expect: Ok, because previous logic ensures:
         // all completed month days have been counted and removed, meaning:
         // days_left_in_month > 0 and days_left_in_month < 32
+        println!("{}", days_left_in_month);
         days_left_in_month.try_into().expect("Could not convert.")
     };
     
     // now at most 24 hours are left
     debug_assert!(tmp_timestamp <= SECONDS_IN_DAY);
     let date = Date::from_ymd(year, month, day);
-    println!("Date: {:?}, timestamp: {}, tmp_timestamp: {}", date, timestamp, tmp_timestamp);
     (date, tmp_timestamp, timestamp)
 }
