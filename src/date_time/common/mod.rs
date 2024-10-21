@@ -153,13 +153,15 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
         }
         out
     };
-    //let completed_month_days = NUMBER_OF_DAYS_PER_MONTH.iter().take(completed_months as usize).map(|x| *x as u16).sum::<u16>();
     debug_assert!(days_into_the_year >= completed_month_days as u16);
     let days_left_in_month = days_this_year as u16 - completed_month_days;
 
     let day: u8 = {
         debug_assert!(days_left_in_month >= 1);
         debug_assert!(days_left_in_month <= 31);
+        // expect: Ok, because previous logic ensures:
+        // all completed month days have been counted and removed, meaning:
+        // days_left_in_month > 0 and days_left_in_month < 32
         days_left_in_month.try_into().expect("Could not convert.")
     };
     

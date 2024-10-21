@@ -19,7 +19,18 @@ pub struct DateTime {
 
 impl DateTime {
     pub fn now() -> DateTime {
-        let (date, timestamp, unix_timestamp) = make_now_date(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs_f64());
+        // TODO: ONLY EXPECT WITHOUT LOGICAL REASON FOR ALWAYS BEING OK
+        // expect is Ok because we are using std::time::SystemTime and System errors are
+        // highly unlikely.
+        //
+        // Plan A: make a default DateTime and fall back to this if it fails
+        //          - UTC Epoch of 1970-01-01T00:00:00Z maybe
+        // 
+        // Plan B: return the error
+        //
+        // Plan C: panic!
+        //          - makes the expect more nice I guess?
+        let (date, timestamp, unix_timestamp) = make_now_date(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).expect("System Error!").as_secs_f64());
         let time = make_now_time(timestamp);
         DateTime {
             date,
@@ -33,13 +44,16 @@ impl DateTime {
         let (utc_offset_hours, utc_offset_minutes) = {
             let tmp = timezone.get_utc_offset();
             let hours = tmp.trunc() as i16;
-            let minutes: u8 = {
+            let minutes: i8 = {
                 match tmp.fract() {
                     // These are the only fractions to exist - For now I am sure
                     f if f == 0.0 => 0,
                     f if f == 0.25 => 15,
                     f if f == 0.5 => 30,
                     f if f == 0.75 => 45,
+                    f if f == -0.25 => -15,
+                    f if f == -0.5 => -30,
+                    f if f == -0.75 => -45,
                     _ => 0,
                 }
             };
@@ -47,15 +61,9 @@ impl DateTime {
         };
         self.set_timezone(timezone);
 
-        // TODO: Problem:  
-        // for an off set like 13.75 on a date like 2020-12-31 23:59:59
-        // the result should be 2021-01-01 13:44:59
-        // Currently it is 2021-01-01 14:45:59
-
         // First calculate new time, if hour is negative, go back 1 day
         if utc_offset_hours.is_positive() {
-
-            let tmp_minute_bind = self.time.minute + utc_offset_minutes;
+            let tmp_minute_bind = self.time.minute + utc_offset_minutes as u8;
             // Again while bigger than 60, will never be bigger than 105 or so
             if tmp_minute_bind > 59 {
                 self.time.hour += 1;
@@ -88,13 +96,38 @@ impl DateTime {
                 }
                 let rest_hours = tmp_hour_bind - self.time.hour as i16;
                 debug_assert!(rest_hours < 24);
+                // expect: Ok, because previous logic ensures: 
+                // rest_hours < 24 and 24 is smaller than 255
                 self.time.hour = TryInto::<u8>::try_into(rest_hours).expect("Everything checked!");
             } else {
                 // Same day
+                // expect: Ok, because previous logic ensures: 
+                // rest_hours < 24 and 24 is smaller than 255
                 self.time.hour = TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
             }
 
         } else {
+            // utc_offset_minutes is positive, but needs to be subtracted
+            let tmp_minute_bind = {
+                if self.time.minute == 0 {
+                    utc_offset_minutes * -1
+                } else {
+                    self.time.minute as i8 + utc_offset_minutes
+                }
+            };
+            // Again while smaller than 0, will never be smaller than -45 or so
+            if tmp_minute_bind.is_negative() {
+                self.time.hour -= 1;
+                // calc rest minutes of hour
+                let rest_minutes = 60 + tmp_minute_bind;
+                debug_assert!(rest_minutes < 60);
+                // add difference to next hour minutes
+                self.time.minute = rest_minutes as u8;
+            } else {
+                debug_assert!(tmp_minute_bind < 60);
+                self.time.minute = tmp_minute_bind as u8;
+            }
+
             // utc_offset_hours is negative!
             let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
             // While possibly smaller than 0, will never be smaller than -12 or so. 
@@ -115,26 +148,16 @@ impl DateTime {
                     self.date.day -= 1;
                 }
                 let actual_rest_hours = 24 + tmp_hour_bind;
+                // expect: Ok, because previous logic ensures:
+                // tmp_hour_bind > -24 and 24 + -24 is smaller than 255 and positive
                 self.time.hour = TryInto::<u8>::try_into(actual_rest_hours).expect("Everything checked!");
             } else {
                 // Same day
+                // expect: Ok, because previous logic ensures:
+                // tmp_hour_bind is positive and thus >= 0 and smaller 24
                 self.time.hour = TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
             }
 
-            // utc_offset_minutes is positive, but needs to be subtracted
-            let tmp_minute_bind = self.time.minute as i8 - utc_offset_minutes as i8;
-            // Again while smaller than 0, will never be smaller than -45 or so
-            if tmp_minute_bind.is_negative() {
-                self.time.hour -= 1;
-                // calc rest minutes of hour
-                let rest_minutes = 60 + tmp_minute_bind;
-                debug_assert!(rest_minutes < 60);
-                // add difference to next hour minutes
-                self.time.minute = rest_minutes as u8;
-            } else {
-                debug_assert!(tmp_minute_bind < 60);
-                self.time.minute = tmp_minute_bind as u8;
-            }
         }
         
     }
