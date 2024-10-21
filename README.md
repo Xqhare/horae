@@ -14,14 +14,21 @@ One more library for my tech-stack.
 - Basic Date and time arithmetic
     - Add a date and time and a duration
     - Subtract a date and time and a duration
+- Custom formatting
 
 ## Features
-
 - Dependency-free
 - Current UTC date and time
-    - Creating the current date and time takes about 10 microseconds
+    - On average, creating the current date and time takes about 130 nanoseconds.
+
 - Local date and time in specified timezone
     - Supports 200 Timezones
+
+## Performance
+- No Guaranteed maximum creation time. 
+    - In testing, with release optimization, generating 100 million `Utc::now` instances took about 15 seconds.
+    - Maximum time observed never exceeded 0.5 seconds for a single instance after testing several hundred million generations.
+    - Average time observed was 134 nanoseconds.
 
 ## Creating new dates and times
 In general I want the API to feel like this:
