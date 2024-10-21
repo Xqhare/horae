@@ -54,6 +54,20 @@ impl DateTime {
 
         // First calculate new time, if hour is negative, go back 1 day
         if utc_offset_hours.is_positive() {
+
+            let tmp_minute_bind = self.time.minute + utc_offset_minutes;
+            // Again while bigger than 60, will never be bigger than 105 or so
+            if tmp_minute_bind > 59 {
+                self.time.hour += 1;
+                // calc rest minutes of hour
+                let rest_minutes = tmp_minute_bind - 60;
+                debug_assert!(rest_minutes < 60);
+                // add difference to next hour minutes
+                self.time.minute = rest_minutes;
+            } else {
+                self.time.minute = tmp_minute_bind;
+            }
+
             let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
             // While possibly bigger than 24, will never be bigger than 36. 
             // + 12h to UTC
@@ -80,18 +94,6 @@ impl DateTime {
                 self.time.hour = TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
             }
 
-            let tmp_minute_bind = self.time.minute + utc_offset_minutes;
-            // Again while bigger than 60, will never be bigger than 105 or so
-            if tmp_minute_bind > 59 {
-                self.time.hour += 1;
-                // calc rest minutes of hour
-                let rest_minutes = tmp_minute_bind - self.time.minute;
-                debug_assert!(rest_minutes < 60);
-                // add difference to next hour minutes
-                self.time.minute = rest_minutes;
-            } else {
-                self.time.minute = tmp_minute_bind;
-            }
         } else {
             // utc_offset_hours is negative!
             let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
