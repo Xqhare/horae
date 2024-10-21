@@ -30,7 +30,17 @@ impl DateTime {
         //
         // Plan C: panic!
         //          - makes the expect more nice I guess?
-        let (date, timestamp, unix_timestamp) = make_now_date(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).expect("System Error!").as_secs_f64());
+        //let (date, timestamp, unix_timestamp) = make_now_date(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).expect("System Error!").as_secs_f64());
+
+        // Plan C: panic!
+        let (date, timestamp, unix_timestamp) = {
+            let timestamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH);
+            match timestamp {
+                Ok(duration) => make_now_date(duration.as_secs_f64()),
+                Err(e) => panic!("{}", e),
+            }
+            
+        };
         let time = make_now_time(timestamp);
         DateTime {
             date,
