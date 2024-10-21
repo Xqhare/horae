@@ -92,21 +92,49 @@ fn from_ymd_hms_with_timezone_positive() {
 fn from_ymd_hms_with_timezone_negative() {
     // Marquesas Islands =-09:30
     let mart = Utc::from_ymd_hms_timezone(2021, 02, 25, 13, 59, 59, TimeZone::MarquesasIslandsTime);
-    assert_eq!("2021-02-25 14:29:59.000", mart.to_string());
+    assert_eq!("2021-02-25 04:29:59.000", mart.to_string());
 }
 
 // negative rollover
 #[test]
-fn from_ymd_hms_with_timezone_negative_rollover() {
+fn from_ymd_hms_with_timezone_negative_rollover_year() {
     // Marquesas Islands =-09:30
     let mart = Utc::from_ymd_hms_timezone(2021, 01, 01, 0, 0, 59, TimeZone::MarquesasIslandsTime);
     assert_eq!("2020-12-31 15:30:59.000", mart.to_string());
 }
 
+#[test]
+fn from_ymd_hms_with_timezone_negative_rollover_month() {
+    // Marquesas Islands =-09:30
+    let mart = Utc::from_ymd_hms_timezone(2021, 02, 01, 0, 0, 59, TimeZone::MarquesasIslandsTime);
+    assert_eq!("2021-01-31 15:30:59.000", mart.to_string());
+}
+
+#[test]
+fn from_ymd_hms_with_timezone_negative_rollover_day() {
+    // Marquesas Islands =-09:30
+    let mart = Utc::from_ymd_hms_timezone(2021, 02, 25, 0, 0, 59, TimeZone::MarquesasIslandsTime);
+    assert_eq!("2021-02-24 15:30:59.000", mart.to_string());
+}
+
 // positive rollover
 #[test]
-fn from_ymd_hms_with_timezone_positive_rollover() {
+fn from_ymd_hms_with_timezone_positive_rollover_year() {
     //Rollover positive Chatham(+13.75)
     let chatham = Utc::from_ymd_hms_timezone(2021, 12, 31, 23, 59, 59, TimeZone::ChathamDaylightTime);
     assert_eq!("2022-01-01 13:44:59.000", chatham.to_string());
+}
+
+#[test]
+fn from_ymd_hms_with_timezone_positive_rollover_month() {
+    //Rollover positive Chatham(+13.75)
+    let chatham = Utc::from_ymd_hms_timezone(2021, 03, 29, 23, 59, 59, TimeZone::ChathamDaylightTime);
+    assert_eq!("2021-04-01 13:44:59.000", chatham.to_string());
+}
+
+#[test]
+fn from_ymd_hms_with_timezone_positive_rollover_day() {
+    //Rollover positive Chatham(+13.75)
+    let chatham = Utc::from_ymd_hms_timezone(2021, 03, 28, 23, 59, 59, TimeZone::ChathamDaylightTime);
+    assert_eq!("2021-03-29 13:44:59.000", chatham.to_string());
 }
