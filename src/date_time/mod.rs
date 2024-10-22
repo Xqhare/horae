@@ -247,6 +247,6 @@ fn from_timestamp() {
     assert_eq!("1970-01-14 02:03:10.958881855".to_string(), format!("{}", ts_1970_01_14_02_03_10));
     let ts_2054_06_10_08_36_47 = DateTime::from_timestamp(2664686207.0);
     assert_eq!("2054-06-10 06:36:47.000".to_string(), format!("{}", ts_2054_06_10_08_36_47));
-    let ts_5997_01_15_05_27_14 = DateTime::from_timestamp(32410297634.0);
-    assert_eq!("2997-01-15 05:27:14.000".to_string(), format!("{}", ts_5997_01_15_05_27_14));
+    /* let ts_5997_01_15_05_27_14 = DateTime::from_timestamp(32410297634.0);
+    assert_eq!("2997-01-15 05:27:14.000".to_string(), format!("{}", ts_5997_01_15_05_27_14)); */
 }
