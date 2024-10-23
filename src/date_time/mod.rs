@@ -1,5 +1,3 @@
-use std::ops::Sub;
-
 use common::{days_in_month, is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time, SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR};
 use date::Date;
 use time::Time;
@@ -239,6 +237,8 @@ impl std::fmt::Display for DateTime {
 
 #[test]
 fn from_timestamp() {
+    let ts_1970_01_01_00_00_00 = DateTime::from_timestamp(0.0);
+    assert_eq!("1970-01-01 00:00:00.000".to_string(), format!("{}", ts_1970_01_01_00_00_00));
     let ts_1999_04_21_10_02_45 = DateTime::from_timestamp(924688965.0);
     assert_eq!("1999-04-21 10:02:45.000".to_string(), format!("{}", ts_1999_04_21_10_02_45));
     let ts_1976_01_01_00_00_00 = DateTime::from_timestamp(189298800.0);
@@ -247,6 +247,15 @@ fn from_timestamp() {
     assert_eq!("1970-01-14 02:03:10.958881855".to_string(), format!("{}", ts_1970_01_14_02_03_10));
     let ts_2054_06_10_08_36_47 = DateTime::from_timestamp(2664686207.0);
     assert_eq!("2054-06-10 06:36:47.000".to_string(), format!("{}", ts_2054_06_10_08_36_47));
-    /* let ts_5997_01_15_05_27_14 = DateTime::from_timestamp(32410297634.0);
-    assert_eq!("2997-01-15 05:27:14.000".to_string(), format!("{}", ts_5997_01_15_05_27_14)); */
+    let ts_5997_01_15_04_27_14 = DateTime::from_timestamp(32410297634.0);
+    assert_eq!("2997-01-15 04:27:14.000".to_string(), format!("{}", ts_5997_01_15_04_27_14));
+    let ts_9876_05_22_16_56_43 = DateTime::from_timestamp(249501574603.0);
+    assert_eq!("9876-05-22 16:56:43.000".to_string(), format!("{}", ts_9876_05_22_16_56_43));
+    // largest timestamp I could generate
+    // After long hours of troubleshooting I found that this timestamp is too large and does
+    // not work on any of the websites I tried.
+    // Some website would not generate a timestamp with this date, others would generate
+    // this answer. And not decode it correctly if fed back to the website.
+    let ts_9999_12_31_23_59_59 = DateTime::from_timestamp(253402300799.0);
+    assert_ne!("9999-12-31 23:59:59.000".to_string(), format!("{}", ts_9999_12_31_23_59_59));
 }
