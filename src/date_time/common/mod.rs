@@ -136,6 +136,7 @@ pub fn make_now_time(rest_timestamp: f64) -> Time {
     Time::from_hmsns(hour, minute, second, rest)
 }
 
+#[allow(unused_assignments)]
 pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     let mut tmp_timestamp = timestamp.clone();
 
@@ -163,57 +164,92 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
         out
     };
 
+    // Fix for the 0.th month
+    if month == 0 {
+        month = 1;
+    }
+
     if month <= 2 && is_this_year_leap_year(year) {
         leap_years -= 1;
     }
 
     debug_assert!(days_into_the_year >= completed_month_days as u16);
 
-    let mut days_left_in_month: i16 = days_this_year as i16 - completed_month_days as i16 - leap_years as i16;
-    println!("days left in month: {}; days this year: {}; completed month days: {}; leap years: {}", days_left_in_month, days_this_year, completed_month_days, leap_years);
+    let mut days_left_in_month: i16 = days_this_year as i16 - completed_month_days as i16;
 
 
     // Because the 0.th is not the 1.st!
     days_left_in_month += 1;
 
-    println!("days left in month: {}", days_left_in_month);
-    // TODO: fix below, if leap_years = 250
-    if days_left_in_month.is_negative() {
-        if month <= 1 {
-            // OH GOD NO! THE YEAR IS OVER!
-            year -= 1;
-            month = 12;
-            days_left_in_month = days_in_month(month) as i16 + days_left_in_month;
-        } else {
-            month -= 1;
-            days_left_in_month = days_in_month(month) as i16 + days_left_in_month;
-        }
-    }
-    println!("????days left in month: {}", days_left_in_month);
-
-    // Oh no! There are 0 days left!
-    // Its the previous month's last day, possibly previous year's last day
-    if days_left_in_month == 0 {
-        if month <= 1 {
-            // OH GOD NO! THE YEAR IS OVER!
-            year -= 1;
-            month = 12;
-            days_left_in_month = days_in_month(month) as i16;
-        } else {
-            month -= 1;
-            days_left_in_month = days_in_month(month) as i16;
-        }
-    }
-
-    let day: u8 = {
+    let mut day: u8 = {
         debug_assert!(days_left_in_month >= 1);
         debug_assert!(days_left_in_month <= 31);
         // expect: Ok, because previous logic ensures:
         // all completed month days have been counted and removed, meaning:
         // days_left_in_month > 0 and days_left_in_month < 32
-        println!("{}", days_left_in_month);
         days_left_in_month.try_into().expect("Could not convert.")
     };
+
+    // Leap year handler
+    // taking care of edge case: leap_years > 365;
+    let mut tmp_leap_year_store = leap_years;
+    // remove full years of leap year days
+    while tmp_leap_year_store as f64 >= DAYS_IN_YEAR_APPROX {
+        if is_this_year_leap_year(year) {
+            tmp_leap_year_store -= 1;
+        }
+        year -= 1;
+        tmp_leap_year_store -= DAYS_IN_YEAR_APPROX as u16;
+    }
+    debug_assert!(tmp_leap_year_store < 365);
+
+    // Now I have: 0 <= leap_years <= 364
+    // if 0: no leap year days left. -> day stays the same, month stays the same
+    // if > 0: at least one leap year day left
+    //
+    // taking care of edge case: 0 < leap_years < 365;
+    let mut prev_month = 0;
+    while tmp_leap_year_store > 0 {
+        // loop through as many months as it takes
+        if tmp_leap_year_store > day as u16 {
+            tmp_leap_year_store -= day as u16;
+            prev_month = month;
+            month -= 1;
+            if month == 0 {
+                year -= 1;
+                prev_month = 1;
+                month = 12;
+            }
+            if month <= 2 && is_this_year_leap_year(year) && prev_month != 2 {
+                tmp_leap_year_store -= 1;
+            } 
+            day = days_in_month(month);
+            
+        } else {
+
+            let new_day = day - tmp_leap_year_store as u8;
+            if new_day == 0 {
+                prev_month = month;
+                month -= 1;
+                if month <= 2 && is_this_year_leap_year(year) && prev_month != 2 {
+                    if prev_month != 2 {
+                        tmp_leap_year_store -= 1;
+                    }
+                }
+                if month == 0 {
+                    year -= 1;
+                    // I know its not read, unused_assignments flag is only for line below!
+                    prev_month = 1;
+                    month = 12;
+                    day = days_in_month(month);
+                } else {
+                    day = days_in_month(month);
+                }
+            }
+            day -= tmp_leap_year_store as u8;
+            tmp_leap_year_store = 0;
+        }
+    }
     
     // now at most 24 hours are left
     debug_assert!(tmp_timestamp <= SECONDS_IN_DAY);
