@@ -1,4 +1,3 @@
-
 /// All supported timezones can be found [here](https://en.wikipedia.org/wiki/List_of_time_zone_abbreviations).
 /// The list is up to date as of 2024-10-20;
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -642,4 +641,33 @@ impl TimeZone {
             TimeZone::YekaterinburgTime => 5.0,
         }
     }
+}
+
+#[test]
+fn all_timezones() {
+    use crate::Utc;
+
+    let timezones = TimeZone::get_all();
+    let tz_len = timezones.len();
+    let mut test_vec: Vec<Utc> = Vec::new();
+    for tz in timezones {
+        let mut utc = Utc::now();
+        utc.with_timezone(tz);
+        test_vec.push(utc);
+    }
+    // really I am looking for crashes, I have no way of confirming the validity of the resulting
+    // DateTime
+    assert_eq!(tz_len, test_vec.len());
+}
+
+#[test]
+fn print_timezones() {
+    assert_eq!("Irkutsk Time".to_string(), TimeZone::IrkutskTime.to_string());
+    assert_eq!("Central European Summer Time".to_string(), TimeZone::CentralEuropeanSummerTime.to_string());
+    assert_eq!("Chatham Daylight Time".to_string(), TimeZone::ChathamDaylightTime.to_string());
+    assert_eq!("Chatham Standard Time".to_string(), TimeZone::ChathamStandardTime.to_string());
+    assert_eq!("Central Africa Time".to_string(), TimeZone::CentralAfricaTime.to_string());
+    assert_eq!("Greenwich Mean Time".to_string(), TimeZone::GreenwichMeanTime.to_string());
+    assert_eq!("Venezuelan Standard Time".to_string(), TimeZone::VenezuelanStandardTime.to_string());
+    assert_eq!("Coordinated Universal Time".to_string(), TimeZone::Utc.to_string());
 }
