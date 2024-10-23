@@ -30,7 +30,7 @@ One more library for my tech-stack.
 - The only guarantee I am willing to make regarding the maximum creation time is less than 0.5 seconds per instance.
     - In testing, with release optimization, generating 100 million `Utc::now` instances took about 15 seconds.
     - Maximum time observed never exceeded 0.5 seconds for a single instance after testing several hundred million generations.
-    - Average times observed were 120, 134, 140 nanoseconds.
+    - Average times observed were 120, 134, 140, 139 nanoseconds.
 
 ## Panics
 There is one panic in the library, a system error if UNIX time could not be obtained.
