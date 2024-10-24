@@ -236,6 +236,8 @@ impl std::fmt::Display for TimeZone {
 }
 
 impl TimeZone {
+    /// Returns all time zones
+    /// Convenient for testing or showing all time zones
     pub fn get_all() -> Vec<TimeZone> {
         vec![
             TimeZone::Utc,
@@ -440,6 +442,10 @@ impl TimeZone {
             TimeZone::YekaterinburgTime,
         ]
     }
+
+    /// Returns the utc offset
+    /// The format is in xx.yy
+    /// where xx is hours and yy fractions of an hour
     pub fn get_utc_offset(&self) -> f64 {
         match self {
             TimeZone::Utc => 0.0,

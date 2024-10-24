@@ -4,6 +4,7 @@ pub use tokens::Token;
 pub use tokens::Unit;
 pub use tokens::Separator;
 
+/// Tokensize the format argument from `.format()`
 pub fn tokenize<S: Into<String>>(format: S) -> Vec<Token> {
     let tmp_into_bind: String = format.into();
     let sepatated = tmp_into_bind.split("%");

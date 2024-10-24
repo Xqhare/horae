@@ -1,4 +1,5 @@
 #[derive(Debug, Clone)]
+/// All Tokens needed to construct a formatted string
 pub enum Token {
     Separator(Separator),
     Unit(Unit),

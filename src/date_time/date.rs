@@ -3,6 +3,9 @@ use crate::tokenizer::{tokenize, Token, Unit};
 use super::common::week_day;
 
 #[derive(Debug, Copy, Clone)]
+/// Contains all date information
+///
+/// Namely: year, month, day
 pub struct Date {
     pub year: u16,
     pub month: u8,
@@ -17,6 +20,7 @@ impl From<(u16, u8, u8, f64)> for Date {
 }
 
 impl Date {
+    /// Used to format a date
     pub fn format(&self, formatter: &str) -> String {
         let format_tokens = tokenize(formatter);
         let mut formatted_string = String::new();

@@ -88,6 +88,7 @@ pub fn days_in_month(month: u8) -> u8 {
     NUMBER_OF_DAYS_PER_MONTH[month as usize - 1]
 }
 
+/// Calculates the number of leap years since the unix epoch
 pub fn leap_years_since_epoch(years_since_epoch: u16) -> u16 {
     let mut leap_years = 0;
     for year in 1970..=(1970 + years_since_epoch) {
@@ -104,6 +105,7 @@ pub fn leap_years_since_epoch(years_since_epoch: u16) -> u16 {
     leap_years
 }
 
+/// Checks if the specified year is a leap year
 pub fn is_this_year_leap_year(year: u16) -> bool {
     if year % 4 == 0 {
         if year % 100 == 0 {
@@ -137,6 +139,7 @@ pub fn leap_seconds_since_epoch(years_since_epoch: u16) -> u16 {
     leap_seconds
 }
 
+/// Creates a new time from a partial unix timestamp - All full days have been taken out
 pub fn make_now_time(rest_timestamp: f64) -> Time {
     let mut rest_timestamp = rest_timestamp;
     let hour = (rest_timestamp / SECONDS_IN_HOUR).floor() as u8;
@@ -148,6 +151,7 @@ pub fn make_now_time(rest_timestamp: f64) -> Time {
     Time::from((hour, minute, second, rest))
 }
 
+/// Creates a new date from a unix timestamp
 #[allow(unused_assignments)]
 pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     let mut tmp_timestamp = timestamp.clone();
