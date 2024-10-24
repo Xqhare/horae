@@ -131,7 +131,7 @@ pub fn make_now_time(rest_timestamp: f64) -> Time {
     rest_timestamp -= minute as f64 * SECONDS_IN_MINUTE as f64;
     let second = rest_timestamp.floor() as u8;
     let rest = rest_timestamp - second as f64;
-    Time::from_hmsns(hour, minute, second, rest)
+    Time::from((hour, minute, second, rest))
 }
 
 #[allow(unused_assignments)]
@@ -248,6 +248,6 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
 
     // now at most 24 hours are left
     debug_assert!(tmp_timestamp <= SECONDS_IN_DAY);
-    let date = Date::from_ymd(year, month, day);
+    let date = Date::from((year, month, day));
     (date, tmp_timestamp, timestamp)
 }
