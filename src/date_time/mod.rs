@@ -116,7 +116,8 @@ impl DateTime {
                     Unit::ShortYear => {
                         formatted_string.push_str(&format!("{:01}", self.date.year.to_string().chars().last().expect("No Year found!")));},
                     Unit::Year => {
-                        let year: String = self.date.year.to_string().chars().rev().take(2).collect();
+                        let year_tmp: String = self.date.year.to_string().chars().rev().take(2).collect();
+                        let year = year_tmp.chars().rev().collect::<String>();
                         formatted_string.push_str(&year);
                     },
                     Unit::FullYear => {
