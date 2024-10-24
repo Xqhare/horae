@@ -5,11 +5,11 @@ use common::{
 use date::Date;
 use time::Time;
 
-use crate::time_zones::TimeZone;
+use crate::{time_zones::TimeZone, tokenizer::{tokenize, Token, Unit}};
 
 mod common;
-mod date;
-mod time;
+pub mod date;
+pub mod time;
 
 #[derive(Debug, Copy, Clone)]
 pub struct DateTime {
@@ -47,6 +47,89 @@ impl DateTime {
             unix_timestamp,
             timezone: TimeZone::Utc,
         }
+    }
+
+    pub fn time(&self) -> Time {
+        self.time
+    }
+
+    pub fn date(&self) -> Date {
+        self.date
+    }
+
+    pub fn format(&self, formatter: &str) -> String {
+        let format_tokens = tokenize(formatter);
+        println!("{:?}", format_tokens);
+        let mut formatted_string = String::new();
+        for token in format_tokens {
+            println!("string so far: {}", formatted_string);
+            match token {
+                Token::Unit(unit) => match unit {
+                    Unit::Millisecond => {
+                        formatted_string.push_str(&format!("{:03}", self.time.subseconds));
+                    },
+                    Unit::ShortSecond => {
+                        formatted_string.push_str(&format!("{:01}", self.time.second));
+                    },
+                    Unit::Second => {
+                        formatted_string.push_str(&format!("{:02}", self.time.second));    
+                    },
+                    Unit::ShortMinute => {
+                        formatted_string.push_str(&format!("{:01}", self.time.minute));
+                    },
+                    Unit::Minute => {
+                        formatted_string.push_str(&format!("{:02}", self.time.minute));
+                    },
+                    Unit::ShortHour => {
+                        formatted_string.push_str(&format!("{:01}", self.time.hour));
+                    },
+                    Unit::Hour => {
+                        formatted_string.push_str(&format!("{:02}", self.time.hour));
+                    },
+                    Unit::ShortDay => {
+                        formatted_string.push_str(&format!("{:01}", self.date.day));
+                    },
+                    Unit::Day => {
+                        formatted_string.push_str(&format!("{:02}", self.date.day));
+                    },
+                    Unit::ShortNumMonth => {
+                        formatted_string.push_str(&format!("{:01}", self.date.month));
+                    },
+                    Unit::NumMonth => {
+                        formatted_string.push_str(&format!("{:02}", self.date.month));
+                    },
+                    Unit::ShortWordMonth => {
+                        const MONTHS: [&str; 12] = [
+                            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                        ];
+                        formatted_string.push_str(&MONTHS[self.date.month as usize - 1]);
+
+                    },
+                    Unit::WordMonth => {
+                        const MONTHS: [&str; 12] = [
+                            "January", "February", "March", "April", "May", "June",
+                            "July", "August", "September", "October", "November", "December",
+                        ];
+                        formatted_string.push_str(&MONTHS[self.date.month as usize - 1]);
+                    },
+                    Unit::ShortYear => {
+                        formatted_string.push_str(&format!("{:01}", self.date.year.to_string().chars().last().expect("No Year found!")));},
+                    Unit::Year => {
+                        let year: String = self.date.year.to_string().chars().rev().take(2).collect();
+                        formatted_string.push_str(&year);
+                    },
+                    Unit::FullYear => {
+                        formatted_string.push_str(&format!("{}", self.date.year));
+                    },
+                },
+                Token::Separator(separator) => {
+                    formatted_string.push_str(&separator.separator_symbol);
+                }
+            }
+        }
+
+        formatted_string
     }
 
     pub fn with_timezone(&mut self, timezone: TimeZone) {
@@ -190,8 +273,8 @@ impl DateTime {
         assert!(hour <= 23);
         assert!(minute <= 59);
         assert!(second <= 59);
-        let date = Date::from_ymd(year, month, day);
-        let time = Time::from_hms(hour, minute, second);
+        let date = Date::from((year, month, day));
+        let time = Time::from((hour, minute, second));
 
         let years = year - 1970;
         let leap_years = {
