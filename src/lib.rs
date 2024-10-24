@@ -1,9 +1,10 @@
 use std::time::Duration;
 
-use date_time::DateTime;
+use date_time::{date::Date, time::Time, DateTime};
 
 mod date_time;
 mod time_zones;
+mod tokenizer;
 
 pub use crate::time_zones::TimeZone;
 
@@ -43,6 +44,18 @@ impl Utc {
                 year, month, day, hour, minute, second, timezone,
             ),
         }
+    }
+
+    pub fn time(&self) -> Time {
+        self.date_time.time()
+    }
+
+    pub fn date(&self) -> Date {
+        self.date_time.date()
+    }
+
+    pub fn format(&self, formatter: &str) -> String {
+        self.date_time.format(formatter)
     }
 }
 
