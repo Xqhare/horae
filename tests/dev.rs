@@ -10,15 +10,11 @@ fn main_creation_datetime_utc() {
     println!("{}", dt2);
 }
 
-// TODO: add hour, minute and second rollovers both positive and negative
-
-// TODO: add sub duration with rollover
-
 // TODO: Leap day tests
 // time - duration = on leap day
 //   - ofc using seconds, minutes, hours, days, months, years
 // time + duration = on leap day
 
 // TODO: Combined rollover / no rollover tests
-// - several of seconds, minutes, hours, days, months, years
+// - several of seconds, minutes, hours, days, months, years -> Doneish
 // - and with timezones
