@@ -41,6 +41,16 @@ pub fn tokenize<S: Into<String>>(format: S) -> Vec<Token> {
                 generated_tokens.push(Token::Unit(Unit::ShortMinute));
                 generated_tokens.push(Token::Separator(Separator { separator_symbol: rest }));
             }
+        } else if token.contains("wd") {
+            if token.contains("wdd") {
+                let rest = token.replace("wdd", "");
+                generated_tokens.push(Token::Unit(Unit::WeekDay));
+                generated_tokens.push(Token::Separator(Separator { separator_symbol: rest }));
+            } else {
+                let rest = token.replace("wd", "");
+                generated_tokens.push(Token::Unit(Unit::ShortWeekDay));
+                generated_tokens.push(Token::Separator(Separator { separator_symbol: rest }));
+            }
         } else if token.contains("d") {
             if token.contains("dd") {
                 let rest = token.replace("d", "");

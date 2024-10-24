@@ -1,6 +1,5 @@
 use common::{
-    days_in_month, is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time,
-    SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR,
+    days_in_month, is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time, week_day, SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR
 };
 use date::Date;
 use time::Time;
@@ -59,10 +58,8 @@ impl DateTime {
 
     pub fn format(&self, formatter: &str) -> String {
         let format_tokens = tokenize(formatter);
-        println!("{:?}", format_tokens);
         let mut formatted_string = String::new();
         for token in format_tokens {
-            println!("string so far: {}", formatted_string);
             match token {
                 Token::Unit(unit) => match unit {
                     Unit::Millisecond => {
@@ -122,6 +119,36 @@ impl DateTime {
                     },
                     Unit::FullYear => {
                         formatted_string.push_str(&format!("{}", self.date.year));
+                    },
+                    Unit::ShortWeekDay => {
+                        let week_day_num = week_day(*&self.unix_timestamp);
+                        let week_day = match week_day_num {
+                            1 => "Mon",
+                            2 => "Tue",
+                            3 => "Wed",
+                            4 => "Thu",
+                            5 => "Fri",
+                            6 => "Sat",
+                            7 => "Sun",
+                            // Should really never happen!
+                            _ => "Error",
+                        };
+                        formatted_string.push_str(week_day);
+                    },
+                    Unit::WeekDay => {
+                        let week_day_num = week_day(*&self.unix_timestamp);
+                        let week_day = match week_day_num {
+                            1 => "Monday",
+                            2 => "Tuesday",
+                            3 => "Wednesday",
+                            4 => "Thursday",
+                            5 => "Friday",
+                            6 => "Saturday",
+                            7 => "Sunday",
+                            // Should really never happen!
+                            _ => "Error",
+                        };
+                        formatted_string.push_str(week_day);
                     },
                 },
                 Token::Separator(separator) => {
@@ -274,7 +301,6 @@ impl DateTime {
         assert!(hour <= 23);
         assert!(minute <= 59);
         assert!(second <= 59);
-        let date = Date::from((year, month, day));
         let time = Time::from((hour, minute, second));
 
         let years = year - 1970;
@@ -309,6 +335,7 @@ impl DateTime {
             + hours_in_sec
             + minutes_in_sec
             + second as f64;
+        let date = Date::from((year, month, day, unix_timestamp));
         DateTime {
             date,
             time,

@@ -8,6 +8,7 @@ pub const SECONDS_IN_DAY: f64 = 86_400.0;
 pub const SECONDS_IN_YEAR: f64 = 31_536_000.0;
 const DAYS_IN_YEAR_APPROX: f64 = 365.0;
 const EPOCH_YEAR: u16 = 1970;
+const EPOCH_WEEK_DAY: u8 = 4;
 const NUMBER_OF_DAYS_PER_MONTH: [u8; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 // All leap seconds from 1972-2024
 // tuple.0 = year
@@ -67,6 +68,19 @@ const LEAP_SECONDS_ARRAY: [(u16, (bool, bool)); 53] = [
     (2023, (false, false)),
     (2024, (false, false)),
 ];
+
+/// Calculates the week day of any unix timestamp
+pub fn week_day(timestamp: f64) -> u8 {
+    let days_since_epoch = (timestamp / SECONDS_IN_DAY).trunc();
+    let completed_weeks = (days_since_epoch / 7.0).trunc();
+    let left_days = days_since_epoch - (completed_weeks * 7.0);
+    let out = left_days + EPOCH_WEEK_DAY as f64;
+    if out > 7.0 {
+        out as u8 - 7
+    } else {
+        out as u8
+    }
+}
 
 /// Takes the actual month number (January is 1)
 /// and returns the number of days in that month
@@ -248,6 +262,6 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
 
     // now at most 24 hours are left
     debug_assert!(tmp_timestamp <= SECONDS_IN_DAY);
-    let date = Date::from((year, month, day));
+    let date = Date::from((year, month, day, timestamp));
     (date, tmp_timestamp, timestamp)
 }

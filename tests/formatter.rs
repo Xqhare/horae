@@ -13,6 +13,39 @@ fn formatter_utc() {
 }
 
 #[test]
+fn formatter_weekday() {
+    let dt1 = Utc::from_ymd_hms(1997, 1, 15, 7, 30, 59);
+    assert_eq!("Wednesday", dt1.format("%wdd"));
+    let truth = vec![
+        ("Wed", "Wednesday", 1997, 1, 15),
+        ("Thu", "Thursday", 1997, 1, 16),
+        ("Fri", "Friday", 1997, 1, 17),
+        ("Sat", "Saturday", 1997, 1, 18),
+        ("Sun", "Sunday", 1997, 1, 19),
+        ("Mon", "Monday", 1997, 1, 20),
+        ("Tue", "Tuesday", 1997, 1, 21),
+        ("Fri", "Friday", 1997, 4, 18),
+        ("Sat", "Saturday", 1997, 4, 19),
+        ("Sun", "Sunday", 1997, 4, 20),
+        ("Tue", "Tuesday", 2016, 3, 1),
+        ("Wed", "Wednesday", 2016, 3, 2),
+        ("Thu", "Thursday", 2016, 3, 3),
+        ("Fri", "Friday", 1994, 9, 30),
+        ("Sat", "Saturday", 1994, 10, 1),
+        ("Sun", "Sunday", 1994, 10, 2),
+        ("Tue", "Tuesday", 1979, 10, 16),
+        ("Wed", "Wednesday", 1979, 10, 17),
+        ("Sat", "Saturday", 1989, 4, 22),
+        ("Sun", "Sunday", 1989, 4, 23),
+    ];
+    for t in truth {
+        let dt = Utc::from_ymd_hms(t.2, t.3, t.4, 0, 0, 0);
+        assert_eq!(t.0, dt.format("%wd"));
+        assert_eq!(t.1, dt.format("%wdd"));
+    }
+}
+
+#[test]
 fn formatter_date() {
     let datetime = Utc::from_ymd_hms(1997, 1, 15, 7, 3, 5);
     let date = datetime.date();

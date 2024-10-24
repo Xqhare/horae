@@ -1,15 +1,18 @@
 use crate::tokenizer::{tokenize, Token, Unit};
 
+use super::common::week_day;
+
 #[derive(Debug, Copy, Clone)]
 pub struct Date {
     pub year: u16,
     pub month: u8,
     pub day: u8,
+    unix_timestamp: f64,
 }
 
-impl From<(u16, u8, u8)> for Date {
-    fn from((year, month, day): (u16, u8, u8)) -> Date {
-        Date { year, month, day }
+impl From<(u16, u8, u8, f64)> for Date {
+    fn from((year, month, day, unix_timestamp): (u16, u8, u8, f64)) -> Date {
+        Date { year, month, day, unix_timestamp }
     }
 }
 
@@ -57,9 +60,39 @@ impl Date {
                     Unit::FullYear => {
                         formatted_string.push_str(&format!("{}", self.year));
                     },
+                    Unit::WeekDay => {
+                        let week_day_num = week_day(*&self.unix_timestamp);
+                        let week_day = match week_day_num {
+                            1 => "Monday",
+                            2 => "Tuesday",
+                            3 => "Wednesday",
+                            4 => "Thursday",
+                            5 => "Friday",
+                            6 => "Saturday",
+                            7 => "Sunday",
+                            // Should really never happen!
+                            _ => "Error",
+                        };
+                        formatted_string.push_str(week_day);
+                    },
+                    Unit::ShortWeekDay => {
+                        let week_day_num = week_day(*&self.unix_timestamp);
+                        let week_day = match week_day_num {
+                            1 => "Mon",
+                            2 => "Tue",
+                            3 => "Wed",
+                            4 => "Thu",
+                            5 => "Fri",
+                            6 => "Sat",
+                            7 => "Sun",
+                            // Should really never happen!
+                            _ => "Error",
+                        };
+                        formatted_string.push_str(week_day);
+                    },
                     // Dont want to intruduce an error state now...
                     _ => {
-                        formatted_string.push_str(" Date only supports Day, Month and Year ");
+                        formatted_string.push_str(" Date only supports Day, Week day, Month and Year ");
                     }
                 },
                 Token::Separator(separator) => {

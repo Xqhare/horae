@@ -27,6 +27,7 @@ One more library for my tech-stack.
     - Add a date and time and a duration
     - Subtract a date and time and a duration
 - Custom formatting
+    - With weekday option
 
 ## Performance
 
