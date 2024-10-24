@@ -216,13 +216,16 @@ impl std::fmt::Display for TimeZone {
         let tmp_self = tmp_self_bind.replace("\"", "");
         let tmp_self = tmp_self.replace("TimeZone::", "");
         // its ascii!
-        let mut tmp = tmp_self.chars().map(|c| {
-            if c.is_uppercase() {
-                " ".to_string() + &c.to_string()
-            } else {
-                c.to_string()
-            }
-        }).collect::<String>();
+        let mut tmp = tmp_self
+            .chars()
+            .map(|c| {
+                if c.is_uppercase() {
+                    " ".to_string() + &c.to_string()
+                } else {
+                    c.to_string()
+                }
+            })
+            .collect::<String>();
         tmp = tmp.trim().to_string();
         // hacky but hey
         if tmp == "Utc" {
@@ -662,12 +665,36 @@ fn all_timezones() {
 
 #[test]
 fn print_timezones() {
-    assert_eq!("Irkutsk Time".to_string(), TimeZone::IrkutskTime.to_string());
-    assert_eq!("Central European Summer Time".to_string(), TimeZone::CentralEuropeanSummerTime.to_string());
-    assert_eq!("Chatham Daylight Time".to_string(), TimeZone::ChathamDaylightTime.to_string());
-    assert_eq!("Chatham Standard Time".to_string(), TimeZone::ChathamStandardTime.to_string());
-    assert_eq!("Central Africa Time".to_string(), TimeZone::CentralAfricaTime.to_string());
-    assert_eq!("Greenwich Mean Time".to_string(), TimeZone::GreenwichMeanTime.to_string());
-    assert_eq!("Venezuelan Standard Time".to_string(), TimeZone::VenezuelanStandardTime.to_string());
-    assert_eq!("Coordinated Universal Time".to_string(), TimeZone::Utc.to_string());
+    assert_eq!(
+        "Irkutsk Time".to_string(),
+        TimeZone::IrkutskTime.to_string()
+    );
+    assert_eq!(
+        "Central European Summer Time".to_string(),
+        TimeZone::CentralEuropeanSummerTime.to_string()
+    );
+    assert_eq!(
+        "Chatham Daylight Time".to_string(),
+        TimeZone::ChathamDaylightTime.to_string()
+    );
+    assert_eq!(
+        "Chatham Standard Time".to_string(),
+        TimeZone::ChathamStandardTime.to_string()
+    );
+    assert_eq!(
+        "Central Africa Time".to_string(),
+        TimeZone::CentralAfricaTime.to_string()
+    );
+    assert_eq!(
+        "Greenwich Mean Time".to_string(),
+        TimeZone::GreenwichMeanTime.to_string()
+    );
+    assert_eq!(
+        "Venezuelan Standard Time".to_string(),
+        TimeZone::VenezuelanStandardTime.to_string()
+    );
+    assert_eq!(
+        "Coordinated Universal Time".to_string(),
+        TimeZone::Utc.to_string()
+    );
 }

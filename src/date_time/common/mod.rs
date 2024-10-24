@@ -8,10 +8,8 @@ pub const SECONDS_IN_DAY: f64 = 86_400.0;
 pub const SECONDS_IN_YEAR: f64 = 31_536_000.0;
 const DAYS_IN_YEAR_APPROX: f64 = 365.0;
 const EPOCH_YEAR: u16 = 1970;
-const NUMBER_OF_DAYS_PER_MONTH: [u8; 12] = [
-    31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-];
-// All leap seconds from 1972-2024 
+const NUMBER_OF_DAYS_PER_MONTH: [u8; 12] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+// All leap seconds from 1972-2024
 // tuple.0 = year
 // tuple.1 = (30. June / 31. Dec)
 const LEAP_SECONDS_ARRAY: [(u16, (bool, bool)); 53] = [
@@ -114,10 +112,10 @@ pub fn leap_seconds_since_epoch(years_since_epoch: u16) -> u16 {
     let mut leap_seconds = 0;
     for tuple in LEAP_SECONDS_ARRAY {
         if years_since_epoch >= tuple.0 {
-            if tuple.1.0 {
+            if tuple.1 .0 {
                 leap_seconds += 1;
             }
-            if tuple.1.1 {
+            if tuple.1 .1 {
                 leap_seconds += 1;
             }
         }
@@ -127,7 +125,7 @@ pub fn leap_seconds_since_epoch(years_since_epoch: u16) -> u16 {
 
 pub fn make_now_time(rest_timestamp: f64) -> Time {
     let mut rest_timestamp = rest_timestamp;
-    let hour = (rest_timestamp / SECONDS_IN_HOUR ).floor() as u8;
+    let hour = (rest_timestamp / SECONDS_IN_HOUR).floor() as u8;
     rest_timestamp -= hour as f64 * SECONDS_IN_HOUR;
     let minute = (rest_timestamp / SECONDS_IN_MINUTE as f64).floor() as u8;
     rest_timestamp -= minute as f64 * SECONDS_IN_MINUTE as f64;
@@ -177,7 +175,6 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
 
     let mut days_left_in_month: i16 = days_this_year as i16 - completed_month_days as i16;
 
-
     // Because the 0.th is not the 1.st!
     days_left_in_month += 1;
 
@@ -222,11 +219,9 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
             }
             if month <= 2 && is_this_year_leap_year(year) && prev_month != 2 {
                 tmp_leap_year_store -= 1;
-            } 
+            }
             day = days_in_month(month);
-            
         } else {
-
             let new_day = day - tmp_leap_year_store as u8;
             if new_day == 0 {
                 prev_month = month;
@@ -250,7 +245,7 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
             tmp_leap_year_store = 0;
         }
     }
-    
+
     // now at most 24 hours are left
     debug_assert!(tmp_timestamp <= SECONDS_IN_DAY);
     let date = Date::from_ymd(year, month, day);

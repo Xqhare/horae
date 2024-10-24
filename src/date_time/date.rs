@@ -1,4 +1,3 @@
-
 #[derive(Debug, Copy, Clone)]
 pub struct Date {
     pub year: u16,

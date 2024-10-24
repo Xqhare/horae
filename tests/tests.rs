@@ -1,6 +1,5 @@
 use horae::{TimeZone, Utc};
 
-
 #[test]
 #[ignore]
 /// > 15 sec
@@ -38,7 +37,6 @@ fn creation_datetime_utc_with_timezone() {
     // like idk, just assert smth too make sure dt2 is kept alive for a short while
     assert!(dt2.to_string().contains(":"))
 }
-
 
 #[test]
 fn from_ymd_hms_without_timezone() {

@@ -7,7 +7,7 @@ const SECONDS_IN_YEAR: f64 = 31_536_000.0;
 
 #[test]
 fn add_to_datetime_no_rollover() {
-    let utc_now = Utc::from_ymd_hms_timezone(2020, 03, 02, 12, 0, 0, TimeZone::Utc); 
+    let utc_now = Utc::from_ymd_hms_timezone(2020, 03, 02, 12, 0, 0, TimeZone::Utc);
 
     let duration_second = std::time::Duration::from_secs(1);
     let now_plus_second = utc_now + duration_second;
@@ -98,7 +98,7 @@ fn sub_from_datetime_rollover_hms() {
     let now_minus_day = utc_now - duration_day;
     assert_eq!("2020-02-01 12:01:01.000", now_minus_day.to_string());
 
-    // tests for months 
+    // tests for months
     let duration_month = std::time::Duration::from_secs(60 * 60 * 24 * 31);
     let now_minus_month = utc_now - duration_month;
     assert_eq!("2020-01-02 12:01:01.000", now_minus_month.to_string());
@@ -136,4 +136,3 @@ fn add_to_datetime_rollover_hms() {
     let now_plus_year = utc_now + duration_year;
     assert_eq!("2021-02-02 22:59:59.000", now_plus_year.to_string());
 }
-

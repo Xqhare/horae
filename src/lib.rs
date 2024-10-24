@@ -29,9 +29,19 @@ impl Utc {
         }
     }
 
-    pub fn from_ymd_hms_timezone(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8, timezone: TimeZone) -> Utc {
+    pub fn from_ymd_hms_timezone(
+        year: u16,
+        month: u8,
+        day: u8,
+        hour: u8,
+        minute: u8,
+        second: u8,
+        timezone: TimeZone,
+    ) -> Utc {
         Utc {
-            date_time: DateTime::from_ymd_hms_timezone(year, month, day, hour, minute, second, timezone),
+            date_time: DateTime::from_ymd_hms_timezone(
+                year, month, day, hour, minute, second, timezone,
+            ),
         }
     }
 }
@@ -45,9 +55,7 @@ impl std::ops::Add<Duration> for Utc {
         let new_timestamp = self.date_time.unix_timestamp + rhs.as_secs_f64();
         let mut date_time = DateTime::from_timestamp(new_timestamp);
         date_time.with_timezone(self.date_time.timezone);
-        Utc {
-            date_time,
-        }
+        Utc { date_time }
     }
 }
 
@@ -60,9 +68,7 @@ impl std::ops::Sub<Duration> for Utc {
         let new_timestamp = self.date_time.unix_timestamp - rhs.as_secs_f64();
         let mut date_time = DateTime::from_timestamp(new_timestamp);
         date_time.with_timezone(self.date_time.timezone);
-        Utc {
-            date_time,
-        }
+        Utc { date_time }
     }
 }
 

@@ -1,13 +1,15 @@
-use common::{days_in_month, is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time, SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR};
+use common::{
+    days_in_month, is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time,
+    SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR,
+};
 use date::Date;
 use time::Time;
 
 use crate::time_zones::TimeZone;
 
+mod common;
 mod date;
 mod time;
-mod common;
-
 
 #[derive(Debug, Copy, Clone)]
 pub struct DateTime {
@@ -26,7 +28,6 @@ impl DateTime {
                 Ok(duration) => make_now_date(duration.as_secs_f64()),
                 Err(e) => panic!("{}", e),
             }
-            
         };
         let time = make_now_time(timestamp);
         DateTime {
@@ -47,7 +48,7 @@ impl DateTime {
             timezone: TimeZone::Utc,
         }
     }
-    
+
     pub fn with_timezone(&mut self, timezone: TimeZone) {
         let (utc_offset_hours, utc_offset_minutes) = {
             let tmp = timezone.get_utc_offset();
@@ -85,7 +86,7 @@ impl DateTime {
             }
 
             let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
-            // While possibly bigger than 24, will never be bigger than 36. 
+            // While possibly bigger than 24, will never be bigger than 36.
             // + 12h to UTC
             if tmp_hour_bind > 23 {
                 // next day && possibly next month && possibly next year
@@ -104,16 +105,16 @@ impl DateTime {
                 }
                 let rest_hours = tmp_hour_bind - self.time.hour as i16;
                 debug_assert!(rest_hours < 24);
-                // expect: Ok, because previous logic ensures: 
+                // expect: Ok, because previous logic ensures:
                 // rest_hours < 24 and 24 is smaller than 255
                 self.time.hour = TryInto::<u8>::try_into(rest_hours).expect("Everything checked!");
             } else {
                 // Same day
-                // expect: Ok, because previous logic ensures: 
+                // expect: Ok, because previous logic ensures:
                 // rest_hours < 24 and 24 is smaller than 255
-                self.time.hour = TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
+                self.time.hour =
+                    TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
             }
-
         } else {
             // utc_offset_minutes is positive, but needs to be subtracted
             let tmp_minute_bind = {
@@ -138,7 +139,7 @@ impl DateTime {
 
             // utc_offset_hours is negative!
             let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
-            // While possibly smaller than 0, will never be smaller than -12 or so. 
+            // While possibly smaller than 0, will never be smaller than -12 or so.
             // - 12h to UTC
             if tmp_hour_bind.is_negative() {
                 // previous day && possibly previous month && possibly previous year
@@ -158,16 +159,16 @@ impl DateTime {
                 let actual_rest_hours = 24 + tmp_hour_bind;
                 // expect: Ok, because previous logic ensures:
                 // tmp_hour_bind > -24 and 24 + -24 is smaller than 255 and positive
-                self.time.hour = TryInto::<u8>::try_into(actual_rest_hours).expect("Everything checked!");
+                self.time.hour =
+                    TryInto::<u8>::try_into(actual_rest_hours).expect("Everything checked!");
             } else {
                 // Same day
                 // expect: Ok, because previous logic ensures:
                 // tmp_hour_bind is positive and thus >= 0 and smaller 24
-                self.time.hour = TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
+                self.time.hour =
+                    TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
             }
-
         }
-        
     }
 
     fn set_timezone(&mut self, timezone: TimeZone) {
@@ -175,7 +176,14 @@ impl DateTime {
     }
 
     /// This function will panic if supplied arguments are out of range for their respective fields
-    pub fn from_ymd_hms(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8) -> DateTime {
+    pub fn from_ymd_hms(
+        year: u16,
+        month: u8,
+        day: u8,
+        hour: u8,
+        minute: u8,
+        second: u8,
+    ) -> DateTime {
         assert!(year >= 1970);
         assert!(month >= 1 && month <= 12);
         assert!(day >= 1 && day <= 31);
@@ -211,7 +219,12 @@ impl DateTime {
         };
         let hours_in_sec = hour as f64 * SECONDS_IN_HOUR;
         let minutes_in_sec: f64 = minute as f64 * SECONDS_IN_MINUTE as f64;
-        let unix_timestamp = years_in_sec + months_in_sec + days_in_sec + hours_in_sec + minutes_in_sec + second as f64;
+        let unix_timestamp = years_in_sec
+            + months_in_sec
+            + days_in_sec
+            + hours_in_sec
+            + minutes_in_sec
+            + second as f64;
         DateTime {
             date,
             time,
@@ -220,7 +233,15 @@ impl DateTime {
         }
     }
 
-    pub fn from_ymd_hms_timezone(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8, timezone: TimeZone) -> DateTime {
+    pub fn from_ymd_hms_timezone(
+        year: u16,
+        month: u8,
+        day: u8,
+        hour: u8,
+        minute: u8,
+        second: u8,
+        timezone: TimeZone,
+    ) -> DateTime {
         let mut out = DateTime::from_ymd_hms(year, month, day, hour, minute, second);
         out.with_timezone(timezone);
         out
@@ -238,24 +259,48 @@ impl std::fmt::Display for DateTime {
 #[test]
 fn from_timestamp() {
     let ts_1970_01_01_00_00_00 = DateTime::from_timestamp(0.0);
-    assert_eq!("1970-01-01 00:00:00.000".to_string(), format!("{}", ts_1970_01_01_00_00_00));
+    assert_eq!(
+        "1970-01-01 00:00:00.000".to_string(),
+        format!("{}", ts_1970_01_01_00_00_00)
+    );
     let ts_1999_04_21_10_02_45 = DateTime::from_timestamp(924688965.0);
-    assert_eq!("1999-04-21 10:02:45.000".to_string(), format!("{}", ts_1999_04_21_10_02_45));
+    assert_eq!(
+        "1999-04-21 10:02:45.000".to_string(),
+        format!("{}", ts_1999_04_21_10_02_45)
+    );
     let ts_1976_01_01_00_00_00 = DateTime::from_timestamp(189298800.0);
-    assert_eq!("1975-12-31 23:00:00.000".to_string(), format!("{}", ts_1976_01_01_00_00_00));
+    assert_eq!(
+        "1975-12-31 23:00:00.000".to_string(),
+        format!("{}", ts_1976_01_01_00_00_00)
+    );
     let ts_1970_01_14_02_03_10 = DateTime::from_timestamp(1130590.958881855);
-    assert_eq!("1970-01-14 02:03:10.958881855".to_string(), format!("{}", ts_1970_01_14_02_03_10));
+    assert_eq!(
+        "1970-01-14 02:03:10.958881855".to_string(),
+        format!("{}", ts_1970_01_14_02_03_10)
+    );
     let ts_2054_06_10_08_36_47 = DateTime::from_timestamp(2664686207.0);
-    assert_eq!("2054-06-10 06:36:47.000".to_string(), format!("{}", ts_2054_06_10_08_36_47));
+    assert_eq!(
+        "2054-06-10 06:36:47.000".to_string(),
+        format!("{}", ts_2054_06_10_08_36_47)
+    );
     let ts_5997_01_15_04_27_14 = DateTime::from_timestamp(32410297634.0);
-    assert_eq!("2997-01-15 04:27:14.000".to_string(), format!("{}", ts_5997_01_15_04_27_14));
+    assert_eq!(
+        "2997-01-15 04:27:14.000".to_string(),
+        format!("{}", ts_5997_01_15_04_27_14)
+    );
     let ts_9876_05_22_16_56_43 = DateTime::from_timestamp(249501574603.0);
-    assert_eq!("9876-05-22 16:56:43.000".to_string(), format!("{}", ts_9876_05_22_16_56_43));
+    assert_eq!(
+        "9876-05-22 16:56:43.000".to_string(),
+        format!("{}", ts_9876_05_22_16_56_43)
+    );
     // largest timestamp I could generate
     // After long hours of troubleshooting I found that this timestamp is too large and does
     // not work on any of the websites I tried.
     // Some website would not generate a timestamp with this date, others would generate
     // this answer. And not decode it correctly if fed back to the website.
     let ts_9999_12_31_23_59_59 = DateTime::from_timestamp(253402300799.0);
-    assert_ne!("9999-12-31 23:59:59.000".to_string(), format!("{}", ts_9999_12_31_23_59_59));
+    assert_ne!(
+        "9999-12-31 23:59:59.000".to_string(),
+        format!("{}", ts_9999_12_31_23_59_59)
+    );
 }

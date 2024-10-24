@@ -11,7 +11,15 @@ fn from_ymd_hms_utc() {
 #[test]
 fn positive() {
     // CEST(+02:00)
-    let cest = Utc::from_ymd_hms_timezone(2021, 02, 25, 13, 59, 59, TimeZone::CentralEuropeanSummerTime);
+    let cest = Utc::from_ymd_hms_timezone(
+        2021,
+        02,
+        25,
+        13,
+        59,
+        59,
+        TimeZone::CentralEuropeanSummerTime,
+    );
     assert_eq!("2021-02-25 15:59:59.000", cest.to_string());
 }
 
@@ -49,20 +57,23 @@ fn negative_rollover_day() {
 #[test]
 fn positive_rollover_year() {
     //Rollover positive Chatham(+13.75)
-    let chatham = Utc::from_ymd_hms_timezone(2021, 12, 31, 23, 59, 59, TimeZone::ChathamDaylightTime);
+    let chatham =
+        Utc::from_ymd_hms_timezone(2021, 12, 31, 23, 59, 59, TimeZone::ChathamDaylightTime);
     assert_eq!("2022-01-01 13:44:59.000", chatham.to_string());
 }
 
 #[test]
 fn positive_rollover_month() {
     //Rollover positive Chatham(+13.75)
-    let chatham = Utc::from_ymd_hms_timezone(2021, 03, 31, 23, 59, 59, TimeZone::ChathamDaylightTime);
+    let chatham =
+        Utc::from_ymd_hms_timezone(2021, 03, 31, 23, 59, 59, TimeZone::ChathamDaylightTime);
     assert_eq!("2021-04-01 13:44:59.000", chatham.to_string());
 }
 
 #[test]
 fn positive_rollover_day() {
     //Rollover positive Chatham(+13.75)
-    let chatham = Utc::from_ymd_hms_timezone(2021, 03, 28, 23, 59, 59, TimeZone::ChathamDaylightTime);
+    let chatham =
+        Utc::from_ymd_hms_timezone(2021, 03, 28, 23, 59, 59, TimeZone::ChathamDaylightTime);
     assert_eq!("2021-03-29 13:44:59.000", chatham.to_string());
 }
