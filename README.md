@@ -1,7 +1,7 @@
 # Horae
 Dependency-free, basic time and date rust library.
 
-> ![info] As a hobby project, I don't think it's ready for production use.
+> [!info] As a hobby project, it's not ready for production use.
 
 Horae should never panic. [More here](#panics).
 Only dates after January 1, 1970, are supported.
@@ -10,7 +10,7 @@ Horae is only as accurate as the UNIX time-stamp provided by the operating syste
 
 ## Motivation
 I wrote this library to remove the need for `chrono` or `time` for my time and date handling.
-One more library for my tech-stack.
+It is simply another library for my tech-stack.
 
 ## Roadmap
 
@@ -41,8 +41,110 @@ There is one panic in the library, a system error if UNIX time could not be obta
 
 This should almost never happen.
 
-## Creating new dates and times
-In general I want the API to feel like this:
+## Usage
+
+### Getting Started
+Add Horae to your Cargo.toml as shown in the example below.
+
+```toml
+[dependencies]
+horae = { git = "https://github.com/Xqhare/horae" }
+```
+
+Now run `cargo update` to pull the latest version.
+
+### Instantiation
+To create a new date and time, instantiate the `Utc` struct with the `now()` or `from_ymd_hms()` function, depending on your needs.
+
+```rust
+use horae::Utc;
+
+let utc_now = Utc::now();
+let date_in_past = Utc.from_ymd_hms(2019, 12, 31, 23, 59, 59);
+let date_in_future = Utc.from_ymd_hms(2040, 1, 1, 0, 0, 0);
+```
+
+### Adding a Timezone
+In most use-cases it is desirable to add a timezone to a date and time.
+To do so, use the `with_timezone()` function.
+
+The `with_timezone()` takes a specific `TimeZone` enum as an argument.
+[See the `TimeZone` documentation for more information](#timezone).
+
+The date and time held accessible inside the `Utc` struct is always in the supplied timezone.
+
+```rust
+use horae::{TimeZone, Utc};
+
+let utc_now = Utc::now();
+let now_in_CEST = Utc::now().with_timezone(TimeZone::CentralEuropeanSummerTime);
+```
+
+### Arithmetic
+Basic date and time arithmetic can be done with the `Utc` struct and a `Duration` from the standard library.
+
+> [!note] Adding or subtracting a `Utc` from another `Utc` is not supported.
+
+```rust
+use horae::{Duration, Utc};
+
+let utc_now = Utc::now();
+let utc_plus_day = utc_now + Duration::days(1);
+let utc_minus_day = utc_now - Duration::days(1);
+```
+
+### Formatting
+By default Horae formats the date and time as `YYYY-MM-DD HH:MM:SS.MS`.
+The `Utc` struct also provides the `date()` and `time()` functions ([explained here](#date-and-time)) to print only the date or time respectively.
+
+```rust
+use horae::{TimeZone, Utc};
+
+let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
+
+println!("{}", utc_now);
+// Example: 2019-01-01 09:09:09.000
+
+assert_eq!("2019-01-01 09:09:09.000", utc_now.to_string());
+
+assert_eq!("2019-01-01", utc_now.date().to_string());
+
+assert_eq!("09:09:09.000", utc_now.time().to_string());
+
+```
+
+#### Custom Formatting
+Horae provides a `format()` function to format the date and time any way you want.
+
+```rust
+use horae::{TimeZone, Utc};
+
+let utc_now = Utc::now();
+
+println!("{}", utc_now.format("%yyyy/%mm/%dd::%HH-%MM-%SS,%MS"));
+// Example: 2019/01/01:09-09-09,000
+
+assert_eq!("2019/01/01:09-09-09,000", utc_now.format("%yyyy/%mm/%dd::%HH-%MM-%SS,%MS").to_string());
+
+assert_eq!("2019/01/01", utc_now.date().format("%yyyy/%mm/%dd").to_string());
+
+assert_eq!("09-09-09,000", utc_now.time().format("%HH-%MM-%SS,%MS").to_string());
+```
+
+The same effect as using `.date()` or `.time()` can be achieved with the `format()` function on the `Utc` struct.
+```rust
+use horae::{TimeZone, Utc};
+
+let utc_now = Utc::now();
+
+assert_eq!("2019/01/01", utc_now.format("%yyyy/%mm/%dd").to_string());
+
+assert_eq!("09-09-09,000", utc_now.format("%HH-%MM-%SS,%MS").to_string());
+```
+
+## API
+The complete functionality of Horae is shown in the example below.
+
 ```rust
 use horae::{TimeZone, Utc};
 
@@ -59,54 +161,121 @@ let now_plus_duration = utc_now + duration;
 
 // Everything is printable in YYYY-MM-DD HH:MM:SS.MS
 println!("{}", now_minus_duration);
-// Example: 2019-01-01 09:09:09.000
+assert_eq!("2019-01-01 09:09:09.000", now_minus_duration.to_string());
 
 // Or use format for fine-grained control
-println!("{}", now_minus_duration.format("%y-%m-%d %H:%M:%S"));
-// Example: 9-1-1 9:9:9
-println!("{}", now_minus_duration.format("%yy-%m-%d %H:%M:%S"));
-// Example: 19-1-1 9:9:9
-println!("{}", now_minus_duration.format("%yyyy-%mm-%dd %HH:%MM:%SS"));
-// Example: 2019-01-01 09:09:09
-println!("{}", now_minus_duration.format("%yyyy-%mmm-%dd %HH:%MM:%SS"));
-// Example: 2019-JAN-01 09:09:09
-println!("{}", now_minus_duration.format("%yyyy-%mmmm-%dd %HH:%MM:%SS.%MS"));
-// Example: 2019-JANUARY-01 09:09:09.000
-println!("{}", now_minus_duration.format("%yyyy/%mm/%dd:%HH-%MM-%SS"));
-// Example: 2019/01/01:09-09-09
-println!("{}", now_minus_duration.format("%dd-%mm-%yyyy %HH:%MM"));
-// Example: 01-01-2019 09:09
-println!("{}", now_minus_duration.format("%dd-%mm %HH:%MM"));
-// Example: 01-01 09:09
-println!("{}", now_minus_duration.format("%mm %MM.%MS"));
-// Example: 01 09.000
+assert_eq!("9-1-1 9:9:9", now_minus_duration.format("%y-%m-%d %H:%M:%S").to_string());
+assert_eq!("19-1-1 9:9:9", now_minus_duration.format("%yy-%m-%d %H:%M:%S").to_string());
+assert_eq!("2019-01-01 09:09:09", now_minus_duration.format("%yyyy-%mm-%dd %HH:%MM:%SS").to_string());
+
+assert_eq!("2019-JAN-01 09:09:09", now_minus_duration.format("%yyyy-%mmm-%dd %HH:%MM:%SS").to_string());
+assert_eq!("2019-JANUARY-01 09:09:09.000", now_minus_duration.format("%yyyy-%mmmm-%dd %HH:%MM:%SS.%MS").to_string());
+
+assert_eq!("2019/01/01:09-09-09", now_minus_duration.format("%yyyy/%mm/%dd:%HH-%MM-%SS").to_string());
+assert_eq!("01-01-2019 09:09", now_minus_duration.format("%dd-%mm-%yyyy %HH:%MM").to_string());
+assert_eq!("01-01 09:09", now_minus_duration.format("%dd-%mm %HH:%MM").to_string());
+assert_eq!("01 09.000", now_minus_duration.format("%mm %MM.%MS").to_string());
+
+assert_eq!("Tue", now_minus_duration.format("%wd").to_string());
+assert_eq!("Tuesday", now_minus_duration.format("%wdd").to_string());
 
 // Quick note: Upper- and lowercase letters matter for the formatter to work. Lowercase for dates, uppercase for times.
 
 // For only printing the date, use `.date()`. Format is YYYY-MM-DD
-println!("{}", now_minus_duration.date());
-// Example: 2019-01-01
+assert_eq!("2019-01-01", now_minus_duration.date().to_string());
 
 // Fine-grained control is also possible
-println!("{}", now_minus_duration.date().format("%y/%m/%d"));
-// Example: 19/1/1
+assert_eq!("19/1/1", now_minus_duration.date().format("%y/%m/%d").to_string());
 
 // For only printing the time, use `.time()`. Format is HH:MM:SS.MS
-println!("{}", now_minus_duration.time());
-// Example: 09:09:09.000
+assert_eq!("09:09:09.000", now_minus_duration.time().to_string());
 
 // Fine-grained control is also possible
-println!("{}", now_minus_duration.time().format("%H-%M-%S"));
-// Example: 9-9-9
+assert_eq!("9-9-9", now_minus_duration.time().format("%H-%M-%S").to_string());
+```
+
+## Date and Time
+Horae provides both a representation of date and time for further use.
+
+The date and time are representations are converted into the supplied timezone.
+If no timezone is supplied, UTC is used and the date and time is in UTC.
+
+```rust
+use horae::{Date, Time, Utc};
+
+let utc_now = Utc::now();
+let cest_now = utc_now.with_timezone(TimeZone::CentralEuropeanSummerTime);
+
+assert_ne!(utc_now.time().hour, cest_now.time().hour);
+```
+
+### Date
+The `date()` function returns a `Date` struct.
+
+It holds the year, month, and day of the date.
+
+```rust
+use horae::{Date, Utc};
+
+let utc_now = Utc::now();
+
+let date = utc_now.date();
+
+println!("{}", day);
+
+assert_eq!("2019-01-01", date.to_string());
+assert_eq!(2019, date.year);
+assert_eq!(1, date.month);
+assert_eq!(1, date.day);
+```
+
+### Time
+The `time()` function returns a `Time` struct.
+
+It holds the hour, minute, second, and millisecond of the time.
+
+```rust
+use horae::{Time, Utc};
+
+let utc_now = Utc::now();
+
+let time = utc_now.time();
+
+println!("{}", time);
+
+assert_eq!("09:09:09.000", time.to_string());
+assert_eq!(9, time.hour);
+assert_eq!(9, time.minute);
+assert_eq!(9, time.second);
+assert_eq!(0, time.millisecond);
 ```
 
 ## Timezone
+Horae supports about 200 timezones.
+
+All supported timezones can be found [here](https://en.wikipedia.org/wiki/List_of_time_zone_abbreviations).
+The list is up-to-date as of 2024-10-20;
 
 ### Supported Timezones
-All supported timezones can be found [here](https://en.wikipedia.org/wiki/List_of_time_zone_abbreviations).
+The `TimeZone` enum has the `get_all()` function to get a list of all supported timezones.
+
+```rust
+use horae::TimeZone;
+
+let timezones = TimeZone::get_all();
+for timezone in timezones {
+    println!("{}", timezone);
+}
+```
 
 ## Leap Seconds
-> WIP Leap seconds are not handled yet.
+While Horae has some functions to support leap seconds, they are not used in the library.
 
-Leap seconds are calculated based on a table [found here](TODO).
+The simple reason: It does not matter for the calculations from UNIX time to a human-readable date.
 
+This does make this library not as accurate as it could be and unsuitable for production use.
+The inaccuracy is only a problem for dates during a leap second.
+
+This would also be the only part of Horae that would need constant maintenance, as leap seconds are added arbitrarily.
+
+This feature would only be needed to ensure that supplied dates are encoded into UNIX time correctly, never to decode them. I think.
