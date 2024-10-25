@@ -1,4 +1,4 @@
-use horae::{TimeZone, Utc};
+use horae::Utc;
 
 #[test]
 fn main_creation_datetime_utc() {
