@@ -14,8 +14,6 @@ It is simply another library for my tech-stack.
 
 ## Roadmap
 
-- Fully documented
-
 ## Features
 
 - Dependency-free
