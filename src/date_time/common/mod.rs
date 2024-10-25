@@ -240,7 +240,7 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
             }
             day = days_in_month(month);
         } else {
-            let new_day = day - tmp_leap_year_store as u8;
+            let mut new_day = day - tmp_leap_year_store as u8;
             if new_day == 0 {
                 prev_month = month;
                 month -= 1;
@@ -254,12 +254,15 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
                     // I know its not read, unused_assignments flag is only for line below!
                     prev_month = 1;
                     month = 12;
-                    day = days_in_month(month);
+                    new_day = days_in_month(month);
                 } else {
-                    day = days_in_month(month);
+                    new_day = days_in_month(month);
+                    if month == 2 && is_this_year_leap_year(year) {
+                        new_day = 29;
+                    }
                 }
             }
-            day -= tmp_leap_year_store as u8;
+            day = new_day;
             tmp_leap_year_store = 0;
         }
     }

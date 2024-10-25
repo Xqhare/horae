@@ -409,8 +409,10 @@ fn from_timestamp() {
     // not work on any of the websites I tried.
     // Some website would not generate a timestamp with this date, others would generate
     // this answer. And not decode it correctly if fed back to the website.
+    //
+    // Nvm, I fixed it. Apparently...
     let ts_9999_12_31_23_59_59 = DateTime::from_timestamp(253402300799.0);
-    assert_ne!(
+    assert_eq!(
         "9999-12-31 23:59:59.000".to_string(),
         format!("{}", ts_9999_12_31_23_59_59)
     );
