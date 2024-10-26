@@ -10,6 +10,30 @@ mod common;
 pub mod date;
 pub mod time;
 
+/// Complete date and time.
+/// Also holds the timezone and the unix timestamp.
+///
+/// Date and time are always in the timezone held.
+///
+/// Instantiated with `DateTime::now()`, or `DateTime::from_timestamp(timestamp)`.
+///
+/// # Examples
+///
+/// ```rust
+/// use horae::Utc;
+///
+/// let now = Utc::now();
+/// println!("{}", now);
+/// assert_ne!(now.unix_timestamp, 0.0);
+/// ```
+///
+/// ```rust
+/// use horae::Utc;
+///
+/// let now = Utc::from_timestamp(0.0);
+/// println!("{}", now);
+/// assert_eq!(now.unix_timestamp, 0.0);
+/// ```
 #[derive(Debug, Copy, Clone)]
 pub struct DateTime {
     date: Date,
@@ -19,6 +43,17 @@ pub struct DateTime {
 }
 
 impl DateTime {
+    /// Instantiates a new `DateTime` with the current date and time.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use horae::Utc;
+    ///
+    /// let now = Utc::now();
+    /// println!("{}", now);
+    /// assert_ne!(now.unix_timestamp, 0.0);
+    /// ```
     pub fn now() -> DateTime {
         // Only logically unguarded panic in the library below!
         let (date, timestamp, unix_timestamp) = {
@@ -37,6 +72,17 @@ impl DateTime {
         }
     }
 
+    /// Instantiates a new `DateTime` from any supplied unix timestamp.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use horae::date_time::DateTime;
+    ///
+    /// let now = DateTime::from_timestamp(0.0);
+    /// println!("{}", now);
+    /// assert_eq!(now.unix_timestamp, 0.0);
+    /// ```
     pub fn from_timestamp(timestamp: f64) -> DateTime {
         let (date, new_timestamp, unix_timestamp) = make_now_date(timestamp);
         let time = make_now_time(new_timestamp);
@@ -48,14 +94,23 @@ impl DateTime {
         }
     }
 
+    /// Returns the held `Time` of the `DateTime`.
+    ///
+    /// Used for formatting and reading parts of the held `Time`.
     pub fn time(&self) -> Time {
         self.time
     }
 
+    /// Returns the held `Date` of the `DateTime`.
+    ///
+    /// Used for formatting and reading parts of the held `Date`.
     pub fn date(&self) -> Date {
         self.date
     }
 
+    /// Returns the formatted string of the `DateTime` according to the supplied formatter.
+    /// 
+    /// Used for formatting the entirety of the `DateTime`.
     pub fn format(&self, formatter: &str) -> String {
         let format_tokens = tokenize(formatter);
         let mut formatted_string = String::new();
@@ -160,6 +215,16 @@ impl DateTime {
         formatted_string
     }
 
+    /// Mutates the `DateTime` to be in the supplied `TimeZone`.
+    /// This changes the `Date` and `Time` values held by the `DateTime` as well.
+    ///
+    /// # Example
+    /// ```rust
+    /// use horae::{date_time::DateTime, TimeZone};
+    /// let mut dt = DateTime::now();
+    /// dt.with_timezone(TimeZone::CentralEuropeanSummerTime);
+    /// assert_eq!(dt.timezone, TimeZone::CentralEuropeanSummerTime);
+    /// ```
     pub fn with_timezone(&mut self, timezone: TimeZone) {
         let (utc_offset_hours, utc_offset_minutes) = {
             let tmp = timezone.get_utc_offset();
@@ -282,10 +347,16 @@ impl DateTime {
         }
     }
 
+    /// Internal function to set timezone
+    ///
+    /// Does not mutate `Date` or `Time`
     fn set_timezone(&mut self, timezone: TimeZone) {
         self.timezone = timezone;
     }
 
+    /// Instantiates a new `DateTime` with the specified date and time.
+    /// 
+    /// # Panics
     /// This function will panic if supplied arguments are out of range for their respective fields
     pub fn from_ymd_hms(
         year: u16,
@@ -343,7 +414,11 @@ impl DateTime {
             timezone: TimeZone::Utc,
         }
     }
-
+    
+    /// Instantiates a new `DateTime` with the specified date, time and timezone.
+    /// 
+    /// # Panics
+    /// This function will panic if supplied arguments are out of range for their respective fields
     pub fn from_ymd_hms_timezone(
         year: u16,
         month: u8,
