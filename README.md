@@ -14,6 +14,8 @@ It is simply another library for my tech-stack.
 
 ## Roadmap
 
+- Arithmetic using only `Utc`
+
 ## Features
 
 - Dependency-free
