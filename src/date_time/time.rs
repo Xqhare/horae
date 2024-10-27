@@ -1,6 +1,9 @@
 use crate::tokenizer::{tokenize, Token, Unit};
 
 #[derive(Debug, Copy, Clone)]
+/// Contains all time information
+///
+/// Holds the hour, minute, second and subseconds.
 pub struct Time {
     pub hour: u8,
     pub minute: u8,
@@ -32,6 +35,16 @@ impl From<(u8, u8, u8)> for Time {
 }
 
 impl Time {
+    /// Formats the time in the given format
+    /// For more information on the available formatting syntax, see the README in the API chapter.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use horae::Utc;
+    ///
+    /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
+    /// assert_eq!(utc_now.time().format("%HH:%MM:%SS"), "09:09:09");
+    /// ```
     pub fn format(&self, formatter: &str) -> String {
         let format_tokens = tokenize(formatter);
         let mut formatted_string = String::new();
