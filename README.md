@@ -1,7 +1,8 @@
 # Horae
 Dependency-free, basic time and date rust library.
 
-> [!info] As a hobby project, it's not ready for production use.
+> [!info] 
+> As a hobby project, it's not ready for production use.
 
 Horae should never panic. [More here](#panics).
 Only dates after January 1, 1970, are supported.
@@ -82,7 +83,8 @@ now_in_CEST.with_timezone(TimeZone::CentralEuropeanSummerTime);
 ### Arithmetic
 Basic date and time arithmetic can be done with the `Utc` struct and a `Duration` from the standard library.
 
-> [!note] Adding or subtracting a `Utc` from another `Utc` is not supported.
+> [!note] 
+> Adding or subtracting a `Utc` from another `Utc` is not supported.
 
 ```rust
 use horae::Utc;
