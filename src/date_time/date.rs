@@ -21,6 +21,16 @@ impl From<(u16, u8, u8, f64)> for Date {
 
 impl Date {
     /// Used to format a date
+    ///
+    /// For more information on the available formatting syntax, see the README in the API chapter.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use horae::Utc;
+    ///
+    /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
+    /// assert_eq!(utc_now.date().format("%yyyy-%mm-%dd"), "2019-01-01");
+    /// ```
     pub fn format(&self, formatter: &str) -> String {
         let format_tokens = tokenize(formatter);
         let mut formatted_string = String::new();
