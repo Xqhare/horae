@@ -1,7 +1,7 @@
 # Horae
 Dependency-free, basic time and date rust library.
 
-> [!info] 
+> [!note] 
 > As a hobby project, it's not ready for production use.
 
 Horae should never panic. [More here](#panics).
