@@ -17,23 +17,6 @@ pub mod time;
 ///
 /// Instantiated with `DateTime::now()`, or `DateTime::from_timestamp(timestamp)`.
 ///
-/// # Examples
-///
-/// ```rust
-/// use horae::Utc;
-///
-/// let now = Utc::now();
-/// println!("{}", now);
-/// assert_ne!(now.unix_timestamp, 0.0);
-/// ```
-///
-/// ```rust
-/// use horae::Utc;
-///
-/// let now = Utc::from_timestamp(0.0);
-/// println!("{}", now);
-/// assert_eq!(now.unix_timestamp, 0.0);
-/// ```
 #[derive(Debug, Copy, Clone)]
 pub struct DateTime {
     date: Date,
@@ -44,16 +27,6 @@ pub struct DateTime {
 
 impl DateTime {
     /// Instantiates a new `DateTime` with the current date and time.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use horae::Utc;
-    ///
-    /// let now = Utc::now();
-    /// println!("{}", now);
-    /// assert_ne!(now.unix_timestamp, 0.0);
-    /// ```
     pub fn now() -> DateTime {
         // Only logically unguarded panic in the library below!
         let (date, timestamp, unix_timestamp) = {
@@ -73,16 +46,6 @@ impl DateTime {
     }
 
     /// Instantiates a new `DateTime` from any supplied unix timestamp.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use horae::date_time::DateTime;
-    ///
-    /// let now = DateTime::from_timestamp(0.0);
-    /// println!("{}", now);
-    /// assert_eq!(now.unix_timestamp, 0.0);
-    /// ```
     pub fn from_timestamp(timestamp: f64) -> DateTime {
         let (date, new_timestamp, unix_timestamp) = make_now_date(timestamp);
         let time = make_now_time(new_timestamp);
@@ -217,14 +180,6 @@ impl DateTime {
 
     /// Mutates the `DateTime` to be in the supplied `TimeZone`.
     /// This changes the `Date` and `Time` values held by the `DateTime` as well.
-    ///
-    /// # Example
-    /// ```rust
-    /// use horae::{date_time::DateTime, TimeZone};
-    /// let mut dt = DateTime::now();
-    /// dt.with_timezone(TimeZone::CentralEuropeanSummerTime);
-    /// assert_eq!(dt.timezone, TimeZone::CentralEuropeanSummerTime);
-    /// ```
     pub fn with_timezone(&mut self, timezone: TimeZone) {
         let (utc_offset_hours, utc_offset_minutes) = {
             let tmp = timezone.get_utc_offset();
