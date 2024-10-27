@@ -16,8 +16,6 @@ It is simply another library for my tech-stack.
 
 ## Roadmap
 
-- Arithmetic using only `Utc`
-
 ## Features
 
 - Dependency-free
@@ -303,14 +301,14 @@ pub use crate::time_zones::TimeZone;
 ///
 /// # Examples
 /// ```rust
-/// use horae::Utc;
+/// use horae::{Utc, TimeZone};
 ///
 /// let utc_now = Utc::now();
 /// println!("Current UTC: {}", utc_now);
 /// ```
 ///
 /// ```rust
-/// use horae::Utc;
+/// use horae::{Utc, TimeZone};
 ///
 /// let mut utc_now = Utc::now();
 /// utc_now.with_timezone(TimeZone::CentralEuropeanSummerTime);
@@ -318,14 +316,14 @@ pub use crate::time_zones::TimeZone;
 /// ```
 ///
 /// ```rust
-/// use horae::Utc;
+/// use horae::{Utc, TimeZone};
 ///
 /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
 /// println!("Custom UTC: {}", utc_now);
 /// ```
 ///
 /// ```rust
-/// use horae::Utc;
+/// use horae::{Utc, TimeZone};
 ///
 /// let mut utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
 /// utc_now.with_timezone(TimeZone::CentralEuropeanSummerTime);
@@ -357,7 +355,7 @@ impl Utc {
     /// # Example
     ///
     /// ```rust
-    /// use horae::Utc;
+    /// use horae::{Utc, TimeZone};
     ///
     /// let utc_now = Utc::now();
     /// let mut cest_now = Utc::now();
@@ -410,7 +408,7 @@ impl Utc {
     ///
     /// # Example
     /// ```rust
-    /// use horae::Utc;
+    /// use horae::{Utc, TimeZone};
     ///
     /// let utc_now = Utc::from_ymd_hms_timezone(2019, 1, 1, 9, 9, 9, TimeZone::CentralEuropeanSummerTime);
     /// println!("{}", utc_now);
@@ -460,7 +458,7 @@ impl Utc {
     /// use horae::Utc;
     ///
     /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
-    /// assert_eq!(utc_now.date().format("%YYYY-%MM-%DD"), "2019-01-01");
+    /// assert_eq!(utc_now.date().format("%yyyy-%mm-%dd"), "2019-01-01");
     /// assert_eq!(utc_now.date().year, 2019);
     /// assert_eq!(utc_now.date().month, 1);
     /// assert_eq!(utc_now.date().day, 1);
@@ -480,7 +478,7 @@ impl Utc {
     /// use horae::Utc;
     ///
     /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
-    /// assert_eq!(utc_now.format("%YYYY-%MM-%DD %HH:%MM:%SS"), "2019-01-01 09:09:09");
+    /// assert_eq!(utc_now.format("%yyyy-%mm-%dd %HH:%MM:%SS"), "2019-01-01 09:09:09");
     /// ```
     pub fn format(&self, formatter: &str) -> String {
         self.date_time.format(formatter)
