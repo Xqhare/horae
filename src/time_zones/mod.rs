@@ -236,15 +236,12 @@ impl std::fmt::Display for TimeZone {
 
 impl From<String> for TimeZone {
     fn from(s: String) -> TimeZone {
-        println!("Trying to find {}", s);
         for tz in TimeZone::get_all() {
-            println!("{}", tz);
             if format!("{}", tz) == s {
                 return tz;
             }
         }
         // Fallback
-        println!("Falling back to UTC");
         TimeZone::CoordinatedUniversalTime
     }
 }
@@ -667,11 +664,9 @@ impl TimeZone {
 #[test]
 fn get_all_timezones_and_convert_to_string_and_back() {
     for tz in TimeZone::get_all() {
-        println!("-------------------------------------------------------------------------");
         let tz_str = tz.to_string();
         let read_tz = TimeZone::from(tz_str);
         assert_eq!(tz, read_tz);
-        println!("-------------------------------------------------------------------------");
     }
 }
 
