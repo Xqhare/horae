@@ -8,5 +8,6 @@ fn main_creation_datetime_utc() {
     println!("Microseconds elapsed: {}", instant.elapsed().as_micros());
     let dt2 = Utc::now();
     println!("{}", dt2);
+    assert!(instant.elapsed().as_micros() < 50_000);
 }
 

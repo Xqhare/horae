@@ -2,7 +2,8 @@ use horae::{TimeZone, Utc};
 
 #[test]
 #[ignore]
-/// > 15 sec
+/// > 15 sec in release mode
+/// > 1 min in debug mode
 fn creation_time_performance() {
     let mut biggest_dur = 0;
     let mut loop_count = 0;

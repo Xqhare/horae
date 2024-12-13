@@ -1,4 +1,4 @@
-use horae::Utc;
+use horae::{TimeZone, Utc};
 
 #[test]
 fn formatter_utc() {
@@ -80,3 +80,12 @@ fn formatter_time() {
     assert_eq!("7!000?3", time.format("%H!%MS?%M"));
 }
 
+#[test]
+fn formatter_timezone() {
+    for tz in TimeZone::get_all() {
+        let mut time1 = Utc::from_ymd_hms_timezone(2021, 12, 31, 23, 59, 59, tz);
+        time1.with_timezone(tz);
+        let time1_str = time1.format("%tz");
+        assert_eq!(time1_str, tz.to_string());
+    }
+}
