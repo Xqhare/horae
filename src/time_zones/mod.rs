@@ -2,7 +2,6 @@
 /// The list is up to date as of 2024-10-20;
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum TimeZone {
-    Utc,
     AustralianCentralDaylightSavingTime,
     AustralianCentralStandardTime,
     AcreTime,
@@ -235,12 +234,26 @@ impl std::fmt::Display for TimeZone {
     }
 }
 
+impl From<String> for TimeZone {
+    fn from(s: String) -> TimeZone {
+        println!("Trying to find {}", s);
+        for tz in TimeZone::get_all() {
+            println!("{}", tz);
+            if format!("{}", tz) == s {
+                return tz;
+            }
+        }
+        // Fallback
+        println!("Falling back to UTC");
+        TimeZone::CoordinatedUniversalTime
+    }
+}
+
 impl TimeZone {
     /// Returns all time zones
     /// Convenient for testing or showing all time zones
     pub fn get_all() -> Vec<TimeZone> {
         vec![
-            TimeZone::Utc,
             TimeZone::AustralianCentralDaylightSavingTime,
             TimeZone::AustralianCentralStandardTime,
             TimeZone::AcreTime,
@@ -448,7 +461,6 @@ impl TimeZone {
     /// where xx is hours and yy fractions of an hour
     pub fn get_utc_offset(&self) -> f64 {
         match self {
-            TimeZone::Utc => 0.0,
             TimeZone::AustralianCentralDaylightSavingTime => 10.5,
             TimeZone::AustralianCentralStandardTime => 9.5,
             TimeZone::AcreTime => -5.0,
@@ -653,6 +665,17 @@ impl TimeZone {
 }
 
 #[test]
+fn get_all_timezones_and_convert_to_string_and_back() {
+    for tz in TimeZone::get_all() {
+        println!("-------------------------------------------------------------------------");
+        let tz_str = tz.to_string();
+        let read_tz = TimeZone::from(tz_str);
+        assert_eq!(tz, read_tz);
+        println!("-------------------------------------------------------------------------");
+    }
+}
+
+#[test]
 fn all_timezones() {
     use crate::Utc;
 
@@ -701,6 +724,6 @@ fn print_timezones() {
     );
     assert_eq!(
         "Coordinated Universal Time".to_string(),
-        TimeZone::Utc.to_string()
+        TimeZone::CoordinatedUniversalTime.to_string()
     );
 }

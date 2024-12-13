@@ -3,7 +3,7 @@ use horae::{TimeZone, Utc};
 #[test]
 fn from_ymd_hms_utc() {
     // utc(+00:00)
-    let utc = Utc::from_ymd_hms_timezone(2021, 02, 25, 13, 59, 59, TimeZone::Utc);
+    let utc = Utc::from_ymd_hms_timezone(2021, 02, 25, 13, 59, 59, TimeZone::CoordinatedUniversalTime);
     assert_eq!("2021-02-25 13:59:59.000", utc.to_string());
 }
 

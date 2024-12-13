@@ -41,7 +41,7 @@ impl DateTime {
             date,
             time,
             unix_timestamp,
-            timezone: TimeZone::Utc,
+            timezone: TimeZone::CoordinatedUniversalTime,
         }
     }
 
@@ -53,7 +53,7 @@ impl DateTime {
             date,
             time,
             unix_timestamp,
-            timezone: TimeZone::Utc,
+            timezone: TimeZone::CoordinatedUniversalTime,
         }
     }
 
@@ -366,7 +366,7 @@ impl DateTime {
             date,
             time,
             unix_timestamp,
-            timezone: TimeZone::Utc,
+            timezone: TimeZone::CoordinatedUniversalTime,
         }
     }
     
