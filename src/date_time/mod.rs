@@ -80,6 +80,9 @@ impl DateTime {
         for token in format_tokens {
             match token {
                 Token::Unit(unit) => match unit {
+                    Unit::Timezone => {
+                        formatted_string.push_str(&self.timezone.to_string());
+                    }
                     Unit::Millisecond => {
                         formatted_string.push_str(&format!("{:03}", self.time.subseconds));
                     },

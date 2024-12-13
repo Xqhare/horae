@@ -12,6 +12,7 @@ pub struct Separator {
 
 #[derive(Debug, Clone)]
 pub enum Unit {
+    Timezone,
     Millisecond,
     ShortSecond,
     Second,

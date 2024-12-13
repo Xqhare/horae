@@ -14,6 +14,10 @@ pub fn tokenize<S: Into<String>>(format: S) -> Vec<Token> {
             let rest = token.replace("MS", "");
             generated_tokens.push(Token::Unit(Unit::Millisecond));
             generated_tokens.push(Token::Separator(Separator { separator_symbol: rest }));
+        } else if token.contains("tz") {
+            let rest = token.replace("tz", "");
+            generated_tokens.push(Token::Unit(Unit::Timezone));
+            generated_tokens.push(Token::Separator(Separator { separator_symbol: rest }));
         } else if token.contains("m") {
             if token.contains("mmmm") {
                 let rest = token.replace("m", "");

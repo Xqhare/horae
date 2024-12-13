@@ -122,8 +122,8 @@ use horae::{TimeZone, Utc};
 
 let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
 
-println!("{}", utc_now.format("%yyyy/%mm/%dd::%HH-%MM-%SS,%MS"));
-// Example: 2019/01/01:09-09-09,000
+println!("{}", utc_now.format("%yyyy/%mm/%dd::%HH-%MM-%SS,%MS|%tz"));
+// Example: 2019/01/01:09-09-09,000|Coordinated Universal Time
 
 assert_eq!("2019/01/01::09-09-09,000", utc_now.format("%yyyy/%mm/%dd::%HH-%MM-%SS,%MS").to_string());
 
@@ -478,7 +478,7 @@ impl Utc {
     /// use horae::Utc;
     ///
     /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
-    /// assert_eq!(utc_now.format("%yyyy-%mm-%dd %HH:%MM:%SS"), "2019-01-01 09:09:09");
+    /// assert_eq!(utc_now.format("%yyyy-%mm-%dd %HH:%MM:%SS | %tz"), "2019-01-01 09:09:09 | Coordinated Universal Time");
     /// ```
     pub fn format(&self, formatter: &str) -> String {
         self.date_time.format(formatter)
