@@ -364,8 +364,8 @@ impl Utc {
     /// println!("CEST: {}", cest_now);
     /// assert_ne!(utc_now.to_string(), cest_now.to_string());
     /// ```
-    pub fn with_timezone(&mut self, timezone: TimeZone) {
-        self.date_time.with_timezone(timezone);
+    pub fn with_timezone<T: Into<TimeZone>>(&mut self, timezone: T) {
+        self.date_time.with_timezone(timezone.into());
     }
 
     /// Instantiates a new `Utc` with the specified date and time.
