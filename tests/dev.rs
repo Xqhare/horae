@@ -10,4 +10,3 @@ fn main_creation_datetime_utc() {
     println!("{}", dt2);
     assert!(instant.elapsed().as_micros() < 50_000);
 }
-

@@ -1,10 +1,14 @@
 use common::{
-    days_in_month, is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time, week_day, SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR
+    days_in_month, is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time,
+    week_day, SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR,
 };
 use date::Date;
 use time::Time;
 
-use crate::{time_zones::TimeZone, tokenizer::{tokenize, Token, Unit}};
+use crate::{
+    time_zones::TimeZone,
+    tokenizer::{tokenize, Token, Unit},
+};
 
 mod common;
 pub mod date;
@@ -72,7 +76,7 @@ impl DateTime {
     }
 
     /// Returns the formatted string of the `DateTime` according to the supplied formatter.
-    /// 
+    ///
     /// Used for formatting the entirety of the `DateTime`.
     pub fn format(&self, formatter: &str) -> String {
         let format_tokens = tokenize(formatter);
@@ -85,62 +89,81 @@ impl DateTime {
                     }
                     Unit::Millisecond => {
                         formatted_string.push_str(&format!("{:03}", self.time.subseconds));
-                    },
+                    }
                     Unit::ShortSecond => {
                         formatted_string.push_str(&format!("{:01}", self.time.second));
-                    },
+                    }
                     Unit::Second => {
-                        formatted_string.push_str(&format!("{:02}", self.time.second));    
-                    },
+                        formatted_string.push_str(&format!("{:02}", self.time.second));
+                    }
                     Unit::ShortMinute => {
                         formatted_string.push_str(&format!("{:01}", self.time.minute));
-                    },
+                    }
                     Unit::Minute => {
                         formatted_string.push_str(&format!("{:02}", self.time.minute));
-                    },
+                    }
                     Unit::ShortHour => {
                         formatted_string.push_str(&format!("{:01}", self.time.hour));
-                    },
+                    }
                     Unit::Hour => {
                         formatted_string.push_str(&format!("{:02}", self.time.hour));
-                    },
+                    }
                     Unit::ShortDay => {
                         formatted_string.push_str(&format!("{:01}", self.date.day));
-                    },
+                    }
                     Unit::Day => {
                         formatted_string.push_str(&format!("{:02}", self.date.day));
-                    },
+                    }
                     Unit::ShortNumMonth => {
                         formatted_string.push_str(&format!("{:01}", self.date.month));
-                    },
+                    }
                     Unit::NumMonth => {
                         formatted_string.push_str(&format!("{:02}", self.date.month));
-                    },
+                    }
                     Unit::ShortWordMonth => {
                         const MONTHS: [&str; 12] = [
-                            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
+                            "Nov", "Dec",
                         ];
                         formatted_string.push_str(&MONTHS[self.date.month as usize - 1]);
-
-                    },
+                    }
                     Unit::WordMonth => {
                         const MONTHS: [&str; 12] = [
-                            "January", "February", "March", "April", "May", "June",
-                            "July", "August", "September", "October", "November", "December",
+                            "January",
+                            "February",
+                            "March",
+                            "April",
+                            "May",
+                            "June",
+                            "July",
+                            "August",
+                            "September",
+                            "October",
+                            "November",
+                            "December",
                         ];
                         formatted_string.push_str(&MONTHS[self.date.month as usize - 1]);
-                    },
+                    }
                     Unit::ShortYear => {
-                        formatted_string.push_str(&format!("{:01}", self.date.year.to_string().chars().last().expect("No Year found!")));},
+                        formatted_string.push_str(&format!(
+                            "{:01}",
+                            self.date
+                                .year
+                                .to_string()
+                                .chars()
+                                .last()
+                                .expect("No Year found!")
+                        ));
+                    }
                     Unit::Year => {
-                        let year_tmp: String = self.date.year.to_string().chars().rev().take(2).collect();
+                        let year_tmp: String =
+                            self.date.year.to_string().chars().rev().take(2).collect();
                         let year = year_tmp.chars().rev().collect::<String>();
                         formatted_string.push_str(&year);
-                    },
+                    }
                     Unit::FullYear => {
                         formatted_string.push_str(&format!("{}", self.date.year));
-                    },
+                    }
                     Unit::ShortWeekDay => {
                         let week_day_num = week_day(*&self.unix_timestamp);
                         let week_day = match week_day_num {
@@ -155,7 +178,7 @@ impl DateTime {
                             _ => "Error",
                         };
                         formatted_string.push_str(week_day);
-                    },
+                    }
                     Unit::WeekDay => {
                         let week_day_num = week_day(*&self.unix_timestamp);
                         let week_day = match week_day_num {
@@ -170,7 +193,7 @@ impl DateTime {
                             _ => "Error",
                         };
                         formatted_string.push_str(week_day);
-                    },
+                    }
                 },
                 Token::Separator(separator) => {
                     formatted_string.push_str(&separator.separator_symbol);
@@ -313,7 +336,7 @@ impl DateTime {
     }
 
     /// Instantiates a new `DateTime` with the specified date and time.
-    /// 
+    ///
     /// # Panics
     /// This function will panic if supplied arguments are out of range for their respective fields
     pub fn from_ymd_hms(
@@ -372,9 +395,9 @@ impl DateTime {
             timezone: TimeZone::CoordinatedUniversalTime,
         }
     }
-    
+
     /// Instantiates a new `DateTime` with the specified date, time and timezone.
-    /// 
+    ///
     /// # Panics
     /// This function will panic if supplied arguments are out of range for their respective fields
     pub fn from_ymd_hms_timezone(

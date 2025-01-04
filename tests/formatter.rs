@@ -3,13 +3,24 @@ use horae::{TimeZone, Utc};
 #[test]
 fn formatter_utc() {
     let datetime = Utc::from_ymd_hms(1997, 1, 15, 7, 30, 59);
-    assert_eq!("1997-01-15 07:30:59", datetime.format("%yyyy-%mm-%dd %HH:%MM:%SS"));
-    assert_eq!("7-1-15 7:30:59.000", datetime.format("%y-%m-%d %H:%M:%S.%MS"));
-    assert_eq!("97-Jan-15 07:30:59.000", datetime.format("%yy-%mmm-%dd %HH:%MM:%SS.%MS"));
-    assert_eq!("1997-January-15 07:30:59.000", datetime.format("%yyyy-%mmmm-%dd %HH:%MM:%SS.%MS"));
+    assert_eq!(
+        "1997-01-15 07:30:59",
+        datetime.format("%yyyy-%mm-%dd %HH:%MM:%SS")
+    );
+    assert_eq!(
+        "7-1-15 7:30:59.000",
+        datetime.format("%y-%m-%d %H:%M:%S.%MS")
+    );
+    assert_eq!(
+        "97-Jan-15 07:30:59.000",
+        datetime.format("%yy-%mmm-%dd %HH:%MM:%SS.%MS")
+    );
+    assert_eq!(
+        "1997-January-15 07:30:59.000",
+        datetime.format("%yyyy-%mmmm-%dd %HH:%MM:%SS.%MS")
+    );
     assert_eq!("000,59;30;7", datetime.format("%MS,%S;%MM;%H"));
     assert_eq!("15/1::07|30", datetime.format("%d/%m::%HH|%MM"));
-
 }
 
 #[test]

@@ -53,28 +53,29 @@ impl Time {
                 Token::Unit(unit) => match unit {
                     Unit::Millisecond => {
                         formatted_string.push_str(&format!("{:03}", self.subseconds));
-                    },
+                    }
                     Unit::ShortSecond => {
                         formatted_string.push_str(&format!("{:01}", self.second));
-                    },
+                    }
                     Unit::Second => {
-                        formatted_string.push_str(&format!("{:02}", self.second));    
-                    },
+                        formatted_string.push_str(&format!("{:02}", self.second));
+                    }
                     Unit::ShortMinute => {
                         formatted_string.push_str(&format!("{:01}", self.minute));
-                    },
+                    }
                     Unit::Minute => {
                         formatted_string.push_str(&format!("{:02}", self.minute));
-                    },
+                    }
                     Unit::ShortHour => {
                         formatted_string.push_str(&format!("{:01}", self.hour));
-                    },
+                    }
                     Unit::Hour => {
                         formatted_string.push_str(&format!("{:02}", self.hour));
-                    },
+                    }
                     // Dont want to intruduce an error state now...
                     _ => {
-                        formatted_string.push_str(" Time only supports millisecond, second, minute, and hour ");
+                        formatted_string
+                            .push_str(" Time only supports millisecond, second, minute, and hour ");
                     }
                 },
                 Token::Separator(separator) => {

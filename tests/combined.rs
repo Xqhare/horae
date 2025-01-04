@@ -13,7 +13,7 @@ fn positive() {
         TimeZone::CentralEuropeanSummerTime,
     );
     assert_eq!("2021-02-25 15:59:59.000", cest.to_string());
-    
+
     let now_plus_second = cest + std::time::Duration::from_secs(1);
     assert_eq!("2021-02-25 16:00:00.000", now_plus_second.to_string());
 

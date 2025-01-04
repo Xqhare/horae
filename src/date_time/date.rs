@@ -15,7 +15,12 @@ pub struct Date {
 
 impl From<(u16, u8, u8, f64)> for Date {
     fn from((year, month, day, unix_timestamp): (u16, u8, u8, f64)) -> Date {
-        Date { year, month, day, unix_timestamp }
+        Date {
+            year,
+            month,
+            day,
+            unix_timestamp,
+        }
     }
 }
 
@@ -39,41 +44,59 @@ impl Date {
                 Token::Unit(unit) => match unit {
                     Unit::ShortDay => {
                         formatted_string.push_str(&format!("{:01}", self.day));
-                    },
+                    }
                     Unit::Day => {
                         formatted_string.push_str(&format!("{:02}", self.day));
-                    },
+                    }
                     Unit::ShortNumMonth => {
                         formatted_string.push_str(&format!("{:01}", self.month));
-                    },
+                    }
                     Unit::NumMonth => {
                         formatted_string.push_str(&format!("{:02}", self.month));
-                    },
+                    }
                     Unit::ShortWordMonth => {
                         const MONTHS: [&str; 12] = [
-                            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
+                            "Nov", "Dec",
                         ];
                         formatted_string.push_str(&MONTHS[self.month as usize - 1]);
-
-                    },
+                    }
                     Unit::WordMonth => {
                         const MONTHS: [&str; 12] = [
-                            "January", "February", "March", "April", "May", "June",
-                            "July", "August", "September", "October", "November", "December",
+                            "January",
+                            "February",
+                            "March",
+                            "April",
+                            "May",
+                            "June",
+                            "July",
+                            "August",
+                            "September",
+                            "October",
+                            "November",
+                            "December",
                         ];
                         formatted_string.push_str(&MONTHS[self.month as usize - 1]);
-                    },
+                    }
                     Unit::ShortYear => {
-                        formatted_string.push_str(&format!("{:01}", self.year.to_string().chars().last().expect("No Year found!")));},
+                        formatted_string.push_str(&format!(
+                            "{:01}",
+                            self.year
+                                .to_string()
+                                .chars()
+                                .last()
+                                .expect("No Year found!")
+                        ));
+                    }
                     Unit::Year => {
-                        let year_tmp: String = self.year.to_string().chars().rev().take(2).collect();
+                        let year_tmp: String =
+                            self.year.to_string().chars().rev().take(2).collect();
                         let year = year_tmp.chars().rev().collect::<String>();
                         formatted_string.push_str(&year);
-                    },
+                    }
                     Unit::FullYear => {
                         formatted_string.push_str(&format!("{}", self.year));
-                    },
+                    }
                     Unit::WeekDay => {
                         let week_day_num = week_day(*&self.unix_timestamp);
                         let week_day = match week_day_num {
@@ -88,7 +111,7 @@ impl Date {
                             _ => "Error",
                         };
                         formatted_string.push_str(week_day);
-                    },
+                    }
                     Unit::ShortWeekDay => {
                         let week_day_num = week_day(*&self.unix_timestamp);
                         let week_day = match week_day_num {
@@ -103,10 +126,11 @@ impl Date {
                             _ => "Error",
                         };
                         formatted_string.push_str(week_day);
-                    },
+                    }
                     // Dont want to intruduce an error state now...
                     _ => {
-                        formatted_string.push_str(" Date only supports Day, Week day, Month and Year ");
+                        formatted_string
+                            .push_str(" Date only supports Day, Week day, Month and Year ");
                     }
                 },
                 Token::Separator(separator) => {

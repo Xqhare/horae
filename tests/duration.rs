@@ -7,7 +7,8 @@ const SECONDS_IN_YEAR: f64 = 31_536_000.0;
 
 #[test]
 fn add_to_datetime_no_rollover() {
-    let utc_now = Utc::from_ymd_hms_timezone(2020, 03, 02, 12, 0, 0, TimeZone::CoordinatedUniversalTime);
+    let utc_now =
+        Utc::from_ymd_hms_timezone(2020, 03, 02, 12, 0, 0, TimeZone::CoordinatedUniversalTime);
 
     let duration_second = std::time::Duration::from_secs(1);
     let now_plus_second = utc_now + duration_second;
@@ -33,7 +34,8 @@ fn add_to_datetime_no_rollover() {
     let now_plus_year = utc_now + duration_year;
     assert_eq!("2021-03-02 12:00:00.000", now_plus_year.to_string());
 
-    let utc_add = Utc::from_ymd_hms_timezone(2019, 02, 12, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
+    let utc_add =
+        Utc::from_ymd_hms_timezone(2019, 02, 12, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
     let duration_year = std::time::Duration::from_secs(SECONDS_IN_YEAR.trunc() as u64);
     let now_plus_year = utc_add + duration_year;
     assert_eq!("2020-02-12 12:01:01.000", now_plus_year.to_string());
@@ -41,7 +43,8 @@ fn add_to_datetime_no_rollover() {
 
 #[test]
 fn sub_from_datetime_no_rollover() {
-    let utc_now = Utc::from_ymd_hms_timezone(2020, 02, 02, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
+    let utc_now =
+        Utc::from_ymd_hms_timezone(2020, 02, 02, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
 
     let duration_second = std::time::Duration::from_secs(1);
     let now_minus_second = utc_now - duration_second;
@@ -67,12 +70,14 @@ fn sub_from_datetime_no_rollover() {
     let now_minus_year = utc_now - duration_year;
     assert_eq!("2019-02-02 12:01:01.000", now_minus_year.to_string());
 
-    let utc_sub = Utc::from_ymd_hms_timezone(2020, 02, 12, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
+    let utc_sub =
+        Utc::from_ymd_hms_timezone(2020, 02, 12, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
     let duration_year = std::time::Duration::from_secs(SECONDS_IN_YEAR.trunc() as u64);
     let now_minus_year = utc_sub - duration_year;
     assert_eq!("2019-02-12 12:01:01.000", now_minus_year.to_string());
 
-    let utc_now = Utc::from_ymd_hms_timezone(2020, 02, 02, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
+    let utc_now =
+        Utc::from_ymd_hms_timezone(2020, 02, 02, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
     let duration_second = std::time::Duration::from_secs(1);
     let now_minus_second = utc_now - duration_second;
     assert_eq!("2020-02-02 12:01:00.000", now_minus_second.to_string());
@@ -80,7 +85,8 @@ fn sub_from_datetime_no_rollover() {
 
 #[test]
 fn sub_from_datetime_rollover_hms() {
-    let utc_now = Utc::from_ymd_hms_timezone(2020, 02, 02, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
+    let utc_now =
+        Utc::from_ymd_hms_timezone(2020, 02, 02, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
 
     let duration_second = std::time::Duration::from_secs(2);
     let now_minus_second = utc_now - duration_second;
@@ -110,7 +116,8 @@ fn sub_from_datetime_rollover_hms() {
 
 #[test]
 fn add_to_datetime_rollover_hms() {
-    let utc_now = Utc::from_ymd_hms_timezone(2020, 02, 02, 22, 59, 59, TimeZone::CoordinatedUniversalTime);
+    let utc_now =
+        Utc::from_ymd_hms_timezone(2020, 02, 02, 22, 59, 59, TimeZone::CoordinatedUniversalTime);
 
     let duration_second = std::time::Duration::from_secs(2);
     let now_plus_second = utc_now + duration_second;
@@ -139,7 +146,8 @@ fn add_to_datetime_rollover_hms() {
 
 #[test]
 fn on_leap_day_plus() {
-    let leap_day = Utc::from_ymd_hms_timezone(2020, 02, 29, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
+    let leap_day =
+        Utc::from_ymd_hms_timezone(2020, 02, 29, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
 
     let leap_day_plus_second = leap_day + std::time::Duration::from_secs(1);
     assert_eq!("2020-02-29 12:01:02.000", leap_day_plus_second.to_string());
@@ -149,12 +157,12 @@ fn on_leap_day_plus() {
 
     let leap_day_plus_hour = leap_day + std::time::Duration::from_secs(60 * 60);
     assert_eq!("2020-02-29 13:01:01.000", leap_day_plus_hour.to_string());
-
 }
 
 #[test]
 fn on_leap_day_minus() {
-    let leap_day = Utc::from_ymd_hms_timezone(2020, 02, 29, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
+    let leap_day =
+        Utc::from_ymd_hms_timezone(2020, 02, 29, 12, 1, 1, TimeZone::CoordinatedUniversalTime);
 
     let leap_day_minus_second = leap_day - std::time::Duration::from_secs(1);
     assert_eq!("2020-02-29 12:01:00.000", leap_day_minus_second.to_string());
@@ -168,7 +176,8 @@ fn on_leap_day_minus() {
 
 #[test]
 fn rolling_into_leap_day() {
-    let before_leap_day = Utc::from_ymd_hms_timezone(2020, 02, 28, 23, 59, 59, TimeZone::CoordinatedUniversalTime);
+    let before_leap_day =
+        Utc::from_ymd_hms_timezone(2020, 02, 28, 23, 59, 59, TimeZone::CoordinatedUniversalTime);
 
     let leap_day_sec = before_leap_day + std::time::Duration::from_secs(1);
     assert_eq!("2020-02-29 00:00:00.000", leap_day_sec.to_string());
@@ -182,18 +191,22 @@ fn rolling_into_leap_day() {
     let leap_day_day = before_leap_day + std::time::Duration::from_secs(60 * 60 * 24);
     assert_eq!("2020-02-29 23:59:59.000", leap_day_day.to_string());
 
-    let month_before_leap_day = Utc::from_ymd_hms_timezone(2020, 01, 29, 23, 59, 59, TimeZone::CoordinatedUniversalTime);
+    let month_before_leap_day =
+        Utc::from_ymd_hms_timezone(2020, 01, 29, 23, 59, 59, TimeZone::CoordinatedUniversalTime);
     let leap_day_month = month_before_leap_day + std::time::Duration::from_secs(60 * 60 * 24 * 31);
     assert_eq!("2020-02-29 23:59:59.000", leap_day_month.to_string());
 
-    let last_leap_day = Utc::from_ymd_hms_timezone(2016, 02, 29, 23, 59, 59, TimeZone::CoordinatedUniversalTime);
-    let leap_day_year = last_leap_day + std::time::Duration::from_secs(60 * 60 * 24 * 365 * 4 + 60 * 60 * 24);
+    let last_leap_day =
+        Utc::from_ymd_hms_timezone(2016, 02, 29, 23, 59, 59, TimeZone::CoordinatedUniversalTime);
+    let leap_day_year =
+        last_leap_day + std::time::Duration::from_secs(60 * 60 * 24 * 365 * 4 + 60 * 60 * 24);
     assert_eq!("2020-02-29 23:59:59.000", leap_day_year.to_string());
 }
 
 #[test]
 fn rolling_from_leap_day() {
-    let leap_day = Utc::from_ymd_hms_timezone(2020, 02, 29, 23, 59, 59, TimeZone::CoordinatedUniversalTime);
+    let leap_day =
+        Utc::from_ymd_hms_timezone(2020, 02, 29, 23, 59, 59, TimeZone::CoordinatedUniversalTime);
 
     // first rolling positive
     let leap_day_plus_second = leap_day + std::time::Duration::from_secs(1);
@@ -214,9 +227,11 @@ fn rolling_from_leap_day() {
     let leap_day_plus_year = leap_day + std::time::Duration::from_secs(86_400 * 365);
     assert_eq!("2021-02-28 23:59:59.000", leap_day_plus_year.to_string());
 
-    let leap_day_minus_day = leap_day - std::time::Duration::from_secs(86_400 * 365 * 4 + 60 * 60 * 24);
+    let leap_day_minus_day =
+        leap_day - std::time::Duration::from_secs(86_400 * 365 * 4 + 60 * 60 * 24);
     assert_eq!("2016-02-29 23:59:59.000", leap_day_minus_day.to_string());
 
-    let leap_day_minus_day = leap_day + std::time::Duration::from_secs(86_400 * 365 * 4 + 60 * 60 * 24);
+    let leap_day_minus_day =
+        leap_day + std::time::Duration::from_secs(86_400 * 365 * 4 + 60 * 60 * 24);
     assert_eq!("2024-02-29 23:59:59.000", leap_day_minus_day.to_string());
 }
