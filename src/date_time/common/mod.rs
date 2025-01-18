@@ -162,7 +162,6 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     tmp_timestamp -= years_since_epoch * SECONDS_IN_YEAR;
 
     let days_this_year = (tmp_timestamp / SECONDS_IN_DAY).trunc();
-    //tmp_timestamp -= leap_years as f64 * SECONDS_IN_DAY;
     tmp_timestamp -= days_this_year as f64 * SECONDS_IN_DAY;
 
     let mut month: u8 = 0;
@@ -197,11 +196,11 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     days_left_in_month += 1;
 
     let mut day: u8 = {
-        debug_assert!(days_left_in_month >= 1);
-        debug_assert!(days_left_in_month <= 31);
         // expect: Ok, because previous logic ensures:
         // all completed month days have been counted and removed, meaning:
-        // days_left_in_month > 0 and days_left_in_month < 32
+        // days_left_in_month > 0 and days_left_in_month < 255
+        // rest of logic handles values larger than the max number of days in a month if
+        // days_left_in_month > 31
         days_left_in_month.try_into().expect("Could not convert.")
     };
 
