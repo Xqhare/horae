@@ -27,6 +27,9 @@ It is simply another library for my tech-stack.
     - Subtract a date and time and a duration
 - Custom formatting
     - With weekday option
+- Get a timestamp for a given date and time
+- Get a date and time from a timestamp
+- Subtract a date and time and another date and time to get a duration
 
 ## Performance
 
@@ -80,11 +83,49 @@ let mut now_in_CEST = Utc::now();
 now_in_CEST.with_timezone(TimeZone::CentralEuropeanSummerTime);
 ```
 
+### Getting a Timezone
+To get the timezone of a date and time, use the `timezone()` function.
+
+```rust
+use horae::{TimeZone, Utc};
+
+let utc_now = Utc::now();
+let mut now_in_CEST = Utc::now();
+now_in_CEST.with_timezone(TimeZone::CentralEuropeanSummerTime);
+
+assert_eq!(utc_now.timezone(), TimeZone::CoordinatedUniversalTime);
+assert_eq!(now_in_CEST.timezone(), TimeZone::CentralEuropeanSummerTime);
+```
+
+### Unix Timestamp
+
+#### Getting a Timestamp
+To get a timestamp for a date and time, use the `timestamp()` function.
+
+```rust
+use horae::Utc;
+
+let utc_now = Utc::now();
+let timestamp = utc_now.unix_timestamp();
+```
+
+#### Getting a Date and Time from a Timestamp
+To get a date and time from a timestamp, use the `from_timestamp()` function.
+
+```rust
+use horae::Utc;
+
+let utc_now = Utc::now();
+let timestamp = utc_now.unix_timestamp();
+let utc_from_timestamp = Utc::from_timestamp(timestamp);
+assert_eq!(utc_now.to_string(), utc_from_timestamp.to_string());
+```
+
 ### Arithmetic
 Basic date and time arithmetic can be done with the `Utc` struct and a `Duration` from the standard library.
 
 > [!note] 
-> Adding or subtracting a `Utc` from another `Utc` is not supported.
+> Adding a `Utc` to another `Utc` is not supported.
 
 ```rust
 use horae::Utc;
@@ -92,6 +133,9 @@ use horae::Utc;
 let utc_now = Utc::now();
 let utc_plus_day = utc_now + std::time::Duration::from_secs(86_400);
 let utc_minus_day = utc_now - std::time::Duration::from_secs(86_400);
+let utc_later = utc_now + std::time::Duration::from_secs(2);
+let duration = utc_later - utc_now;
+assert_eq!(duration.as_secs(), 2);
 ```
 
 ### Formatting
