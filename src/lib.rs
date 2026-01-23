@@ -200,6 +200,55 @@ impl Utc {
     pub fn format(&self, formatter: &str) -> String {
         self.date_time.format(formatter)
     }
+
+    /// Returns the `TimeZone` of the `Utc` instance.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use horae::{Utc, TimeZone};
+    ///
+    /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
+    /// assert_eq!(utc_now.timezone(), TimeZone::CoordinatedUniversalTime);
+    /// ```
+    pub fn timezone(&self) -> TimeZone {
+        self.date_time.timezone
+    }
+
+    /// Returns the unix timestamp of the `Utc` instance.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use horae::Utc;
+    ///
+    /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
+    /// assert_eq!(utc_now.unix_timestamp(), 1546333749.0);
+    /// ```
+    pub fn unix_timestamp(&self) -> f64 {
+        self.date_time.unix_timestamp
+    }
+
+    /// Instantiates a new `Utc` from a unix timestamp.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use horae::Utc;
+    ///
+    /// let utc_now = Utc::from_timestamp(1546333749.0);
+    /// assert_eq!(utc_now.to_string(), "2019-01-01 09:09:09.000");
+    /// ```
+    pub fn from_timestamp(timestamp: f64) -> Utc {
+        let mut date_time = DateTime::from_timestamp(timestamp);
+        date_time.with_timezone(TimeZone::CoordinatedUniversalTime);
+        Utc { date_time }
+    }
+}
+
+impl std::ops::Sub<Utc> for Utc {
+    type Output = Duration;
+
+    fn sub(self, rhs: Utc) -> Duration {
+        Duration::from_secs_f64(self.unix_timestamp() - rhs.unix_timestamp())
+    }
 }
 
 // Add duration implementation
