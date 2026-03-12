@@ -75,11 +75,7 @@ pub fn week_day(timestamp: f64) -> u8 {
     let completed_weeks = (days_since_epoch / 7.0).trunc();
     let left_days = days_since_epoch - (completed_weeks * 7.0);
     let out = left_days + EPOCH_WEEK_DAY as f64;
-    if out > 7.0 {
-        out as u8 - 7
-    } else {
-        out as u8
-    }
+    if out > 7.0 { out as u8 - 7 } else { out as u8 }
 }
 
 /// Takes the actual month number (January is 1)
@@ -128,10 +124,10 @@ pub fn leap_seconds_since_epoch(years_since_epoch: u16) -> u16 {
     let mut leap_seconds = 0;
     for tuple in LEAP_SECONDS_ARRAY {
         if years_since_epoch >= tuple.0 {
-            if tuple.1 .0 {
+            if tuple.1.0 {
                 leap_seconds += 1;
             }
-            if tuple.1 .1 {
+            if tuple.1.1 {
                 leap_seconds += 1;
             }
         }

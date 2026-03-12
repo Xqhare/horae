@@ -1,3 +1,6 @@
+use std::fs::File;
+use std::io::{Read, Seek, SeekFrom};
+
 /// All supported timezones can be found [here](https://en.wikipedia.org/wiki/List_of_time_zone_abbreviations).
 /// The list is up to date as of 2024-10-20;
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -654,6 +657,117 @@ impl TimeZone {
             TimeZone::YakutskTime => 9.0,
             TimeZone::YekaterinburgTime => 5.0,
         }
+    }
+}
+
+/// Detects the current local UTC offset by reading /etc/localtime.
+/// This is a unix only feature.
+pub fn detect_local_offset() -> Option<f64> {
+    let mut file = File::open("/etc/localtime").ok()?;
+    parse_tzif(&mut file)
+}
+
+fn parse_tzif(file: &mut File) -> Option<f64> {
+    let mut header = [0u8; 44];
+    file.read_exact(&mut header).ok()?;
+
+    if &header[0..4] != b"TZif" {
+        return None;
+    }
+
+    let version = header[4];
+
+    let tzh_timecnt = i32::from_be_bytes(header[32..36].try_into().unwrap()) as usize;
+    let tzh_typecnt = i32::from_be_bytes(header[36..40].try_into().unwrap()) as usize;
+    let tzh_charcnt = i32::from_be_bytes(header[40..44].try_into().unwrap()) as usize;
+
+    // If version 2 or 3, skip version 1 data and read version 2 header
+    if version == b'2' || version == b'3' {
+        let skip = tzh_timecnt * 4 + tzh_timecnt + tzh_typecnt * 6 + tzh_charcnt;
+        // Also skip leap seconds (8 bytes each), and indicators (1 byte each)
+        let tzh_leapcnt = i32::from_be_bytes(header[28..32].try_into().unwrap()) as usize;
+        let tzh_ttisutcnt = i32::from_be_bytes(header[20..24].try_into().unwrap()) as usize;
+        let tzh_ttisstdcnt = i32::from_be_bytes(header[24..28].try_into().unwrap()) as usize;
+
+        let total_skip = skip + tzh_leapcnt * 8 + tzh_ttisutcnt + tzh_ttisstdcnt;
+        file.seek(SeekFrom::Current(total_skip as i64)).ok()?;
+
+        // Read version 2 header
+        file.read_exact(&mut header).ok()?;
+        if &header[0..4] != b"TZif" {
+            return None;
+        }
+
+        let tzh_timecnt = i32::from_be_bytes(header[32..36].try_into().unwrap()) as usize;
+        let _tzh_typecnt = i32::from_be_bytes(header[36..40].try_into().unwrap()) as usize;
+        let _tzh_charcnt = i32::from_be_bytes(header[40..44].try_into().unwrap()) as usize;
+        let _tzh_leapcnt = i32::from_be_bytes(header[28..32].try_into().unwrap()) as usize;
+        let _tzh_ttisutcnt = i32::from_be_bytes(header[20..24].try_into().unwrap()) as usize;
+        let _tzh_ttisstdcnt = i32::from_be_bytes(header[24..28].try_into().unwrap()) as usize;
+
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .ok()?
+            .as_secs() as i64;
+
+        // Read 64-bit transitions
+        let mut transition_times = vec![0i64; tzh_timecnt];
+        for i in 0..tzh_timecnt {
+            let mut buf = [0u8; 8];
+            file.read_exact(&mut buf).ok()?;
+            transition_times[i] = i64::from_be_bytes(buf);
+        }
+
+        let mut type_indices = vec![0u8; tzh_timecnt];
+        file.read_exact(&mut type_indices).ok()?;
+
+        let mut type_idx = 0;
+        for i in 0..tzh_timecnt {
+            if transition_times[i] > now {
+                break;
+            }
+            type_idx = type_indices[i] as usize;
+        }
+
+        // Read ttinfo
+        file.seek(SeekFrom::Current((type_idx * 6) as i64)).ok()?;
+        let mut ttinfo = [0u8; 6];
+        file.read_exact(&mut ttinfo).ok()?;
+
+        let utoff = i32::from_be_bytes(ttinfo[0..4].try_into().unwrap());
+        return Some(utoff as f64 / 3600.0);
+    } else {
+        // Version 1 (32-bit transitions)
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .ok()?
+            .as_secs() as i32;
+
+        let mut transition_times = vec![0i32; tzh_timecnt];
+        for i in 0..tzh_timecnt {
+            let mut buf = [0u8; 4];
+            file.read_exact(&mut buf).ok()?;
+            transition_times[i] = i32::from_be_bytes(buf);
+        }
+
+        let mut type_indices = vec![0u8; tzh_timecnt];
+        file.read_exact(&mut type_indices).ok()?;
+
+        let mut type_idx = 0;
+        for i in 0..tzh_timecnt {
+            if transition_times[i] > now {
+                break;
+            }
+            type_idx = type_indices[i] as usize;
+        }
+
+        // Read ttinfo
+        file.seek(SeekFrom::Current((type_idx * 6) as i64)).ok()?;
+        let mut ttinfo = [0u8; 6];
+        file.read_exact(&mut ttinfo).ok()?;
+
+        let utoff = i32::from_be_bytes(ttinfo[0..4].try_into().unwrap());
+        return Some(utoff as f64 / 3600.0);
     }
 }
 

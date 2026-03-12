@@ -1,4 +1,4 @@
-use crate::tokenizer::{tokenize, Token, Unit};
+use crate::tokenizer::{Token, Unit, tokenize};
 
 #[derive(Debug, Copy, Clone)]
 /// Contains all time information

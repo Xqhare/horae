@@ -37,21 +37,21 @@ fn negative() {
 fn negative_rollover_year() {
     // Marquesas Islands =-09:30
     let mart = Utc::from_ymd_hms_timezone(2021, 01, 01, 0, 0, 59, TimeZone::MarquesasIslandsTime);
-    assert_eq!("2020-12-31 15:30:59.000", mart.to_string());
+    assert_eq!("2020-12-31 14:30:59.000", mart.to_string());
 }
 
 #[test]
 fn negative_rollover_month() {
     // Marquesas Islands =-09:30
     let mart = Utc::from_ymd_hms_timezone(2021, 02, 01, 0, 0, 59, TimeZone::MarquesasIslandsTime);
-    assert_eq!("2021-01-31 15:30:59.000", mart.to_string());
+    assert_eq!("2021-01-31 14:30:59.000", mart.to_string());
 }
 
 #[test]
 fn negative_rollover_day() {
     // Marquesas Islands =-09:30
     let mart = Utc::from_ymd_hms_timezone(2021, 02, 25, 0, 0, 59, TimeZone::MarquesasIslandsTime);
-    assert_eq!("2021-02-24 15:30:59.000", mart.to_string());
+    assert_eq!("2021-02-24 14:30:59.000", mart.to_string());
 }
 
 // positive rollover

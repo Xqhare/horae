@@ -97,6 +97,16 @@ fn formatter_timezone() {
         let mut time1 = Utc::from_ymd_hms_timezone(2021, 12, 31, 23, 59, 59, tz);
         time1.with_timezone(tz);
         let time1_str = time1.format("%tz");
-        assert_eq!(time1_str, tz.to_string());
+        
+        let offset = tz.get_utc_offset();
+        if offset == 0.0 {
+            assert_eq!(time1_str, "Coordinated Universal Time");
+        } else {
+            let sign = if offset >= 0.0 { "+" } else { "-" };
+            let abs_offset = offset.abs();
+            let hours = abs_offset.trunc() as i32;
+            let minutes = (abs_offset.fract() * 60.0).round() as i32;
+            assert_eq!(time1_str, format!("GMT{}{:02}:{:02}", sign, hours, minutes));
+        }
     }
 }

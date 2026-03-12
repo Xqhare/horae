@@ -40,7 +40,7 @@ fn negative() {
     assert_eq!("2021-02-25 04:29:59.000", mart.to_string());
     let second = std::time::Duration::from_secs(1);
     let now_plus_second = mart + second;
-    assert_eq!("2021-02-25 05:30:00.000", now_plus_second.to_string());
+    assert_eq!("2021-02-25 04:30:00.000", now_plus_second.to_string());
 
     let now_minus_second = mart - second;
     assert_eq!("2021-02-25 04:29:58.000", now_minus_second.to_string());

@@ -1,13 +1,13 @@
 use common::{
-    days_in_month, is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time,
-    week_day, SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR,
+    SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR, days_in_month,
+    is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time, week_day,
 };
 use date::Date;
 use time::Time;
 
 use crate::{
-    time_zones::TimeZone,
-    tokenizer::{tokenize, Token, Unit},
+    time_zones::{TimeZone, detect_local_offset},
+    tokenizer::{Token, Unit, tokenize},
 };
 
 mod common;
@@ -26,7 +26,7 @@ pub struct DateTime {
     date: Date,
     time: Time,
     pub unix_timestamp: f64,
-    pub timezone: TimeZone,
+    pub timezone: f64,
 }
 
 impl DateTime {
@@ -45,7 +45,7 @@ impl DateTime {
             date,
             time,
             unix_timestamp,
-            timezone: TimeZone::CoordinatedUniversalTime,
+            timezone: 0.0,
         }
     }
 
@@ -57,7 +57,7 @@ impl DateTime {
             date,
             time,
             unix_timestamp,
-            timezone: TimeZone::CoordinatedUniversalTime,
+            timezone: 0.0,
         }
     }
 
@@ -65,14 +65,27 @@ impl DateTime {
     ///
     /// Used for formatting and reading parts of the held `Time`.
     pub fn time(&self) -> Time {
-        self.time
+        let (_, time) = self.get_local_components();
+        time
     }
 
     /// Returns the held `Date` of the `DateTime`.
     ///
     /// Used for formatting and reading parts of the held `Date`.
     pub fn date(&self) -> Date {
-        self.date
+        let (date, _) = self.get_local_components();
+        date
+    }
+
+    /// Helper to get local date and time components based on the offset.
+    fn get_local_components(&self) -> (Date, Time) {
+        if self.timezone == 0.0 {
+            return (self.date, self.time);
+        }
+        let local_timestamp = self.unix_timestamp + self.timezone * SECONDS_IN_HOUR;
+        let (date, rest_timestamp, _) = make_now_date(local_timestamp);
+        let time = make_now_time(rest_timestamp);
+        (date, time)
     }
 
     /// Returns the formatted string of the `DateTime` according to the supplied formatter.
@@ -81,51 +94,60 @@ impl DateTime {
     pub fn format(&self, formatter: &str) -> String {
         let format_tokens = tokenize(formatter);
         let mut formatted_string = String::new();
+        let (local_date, local_time) = self.get_local_components();
         for token in format_tokens {
             match token {
                 Token::Unit(unit) => match unit {
                     Unit::Timezone => {
-                        formatted_string.push_str(&self.timezone.to_string());
+                        if self.timezone == 0.0 {
+                            formatted_string.push_str("Coordinated Universal Time");
+                        } else {
+                            let sign = if self.timezone >= 0.0 { "+" } else { "-" };
+                            let abs_offset = self.timezone.abs();
+                            let hours = abs_offset.trunc() as i32;
+                            let minutes = (abs_offset.fract() * 60.0).round() as i32;
+                            formatted_string.push_str(&format!("GMT{}{:02}:{:02}", sign, hours, minutes));
+                        }
                     }
                     Unit::Millisecond => {
-                        formatted_string.push_str(&format!("{:03}", self.time.subseconds));
+                        formatted_string.push_str(&format!("{:03}", local_time.subseconds));
                     }
                     Unit::ShortSecond => {
-                        formatted_string.push_str(&format!("{:01}", self.time.second));
+                        formatted_string.push_str(&format!("{:01}", local_time.second));
                     }
                     Unit::Second => {
-                        formatted_string.push_str(&format!("{:02}", self.time.second));
+                        formatted_string.push_str(&format!("{:02}", local_time.second));
                     }
                     Unit::ShortMinute => {
-                        formatted_string.push_str(&format!("{:01}", self.time.minute));
+                        formatted_string.push_str(&format!("{:01}", local_time.minute));
                     }
                     Unit::Minute => {
-                        formatted_string.push_str(&format!("{:02}", self.time.minute));
+                        formatted_string.push_str(&format!("{:02}", local_time.minute));
                     }
                     Unit::ShortHour => {
-                        formatted_string.push_str(&format!("{:01}", self.time.hour));
+                        formatted_string.push_str(&format!("{:01}", local_time.hour));
                     }
                     Unit::Hour => {
-                        formatted_string.push_str(&format!("{:02}", self.time.hour));
+                        formatted_string.push_str(&format!("{:02}", local_time.hour));
                     }
                     Unit::ShortDay => {
-                        formatted_string.push_str(&format!("{:01}", self.date.day));
+                        formatted_string.push_str(&format!("{:01}", local_date.day));
                     }
                     Unit::Day => {
-                        formatted_string.push_str(&format!("{:02}", self.date.day));
+                        formatted_string.push_str(&format!("{:02}", local_date.day));
                     }
                     Unit::ShortNumMonth => {
-                        formatted_string.push_str(&format!("{:01}", self.date.month));
+                        formatted_string.push_str(&format!("{:01}", local_date.month));
                     }
                     Unit::NumMonth => {
-                        formatted_string.push_str(&format!("{:02}", self.date.month));
+                        formatted_string.push_str(&format!("{:02}", local_date.month));
                     }
                     Unit::ShortWordMonth => {
                         const MONTHS: [&str; 12] = [
                             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
                             "Nov", "Dec",
                         ];
-                        formatted_string.push_str(&MONTHS[self.date.month as usize - 1]);
+                        formatted_string.push_str(&MONTHS[local_date.month as usize - 1]);
                     }
                     Unit::WordMonth => {
                         const MONTHS: [&str; 12] = [
@@ -142,12 +164,12 @@ impl DateTime {
                             "November",
                             "December",
                         ];
-                        formatted_string.push_str(&MONTHS[self.date.month as usize - 1]);
+                        formatted_string.push_str(&MONTHS[local_date.month as usize - 1]);
                     }
                     Unit::ShortYear => {
                         formatted_string.push_str(&format!(
                             "{:01}",
-                            self.date
+                            local_date
                                 .year
                                 .to_string()
                                 .chars()
@@ -157,15 +179,15 @@ impl DateTime {
                     }
                     Unit::Year => {
                         let year_tmp: String =
-                            self.date.year.to_string().chars().rev().take(2).collect();
+                            local_date.year.to_string().chars().rev().take(2).collect();
                         let year = year_tmp.chars().rev().collect::<String>();
                         formatted_string.push_str(&year);
                     }
                     Unit::FullYear => {
-                        formatted_string.push_str(&format!("{}", self.date.year));
+                        formatted_string.push_str(&format!("{}", local_date.year));
                     }
                     Unit::ShortWeekDay => {
-                        let week_day_num = week_day(*&self.unix_timestamp);
+                        let week_day_num = week_day(self.unix_timestamp + self.timezone * SECONDS_IN_HOUR);
                         let week_day = match week_day_num {
                             1 => "Mon",
                             2 => "Tue",
@@ -180,7 +202,7 @@ impl DateTime {
                         formatted_string.push_str(week_day);
                     }
                     Unit::WeekDay => {
-                        let week_day_num = week_day(*&self.unix_timestamp);
+                        let week_day_num = week_day(self.unix_timestamp + self.timezone * SECONDS_IN_HOUR);
                         let week_day = match week_day_num {
                             1 => "Monday",
                             2 => "Tuesday",
@@ -205,134 +227,25 @@ impl DateTime {
     }
 
     /// Mutates the `DateTime` to be in the supplied `TimeZone`.
-    /// This changes the `Date` and `Time` values held by the `DateTime` as well.
     pub fn with_timezone(&mut self, timezone: TimeZone) {
-        let (utc_offset_hours, utc_offset_minutes) = {
-            let tmp = timezone.get_utc_offset();
-            let hours = tmp.trunc() as i16;
-            let minutes: i8 = {
-                match tmp.fract() {
-                    // These are the only fractions to exist - For now I am sure
-                    f if f == 0.0 => 0,
-                    f if f == 0.25 => 15,
-                    f if f == 0.5 => 30,
-                    f if f == 0.75 => 45,
-                    f if f == -0.25 => -15,
-                    f if f == -0.5 => -30,
-                    f if f == -0.75 => -45,
-                    _ => 0,
-                }
-            };
-            (hours, minutes)
-        };
-        self.set_timezone(timezone);
+        self.with_utc_offset(timezone.get_utc_offset());
+    }
 
-        // First calculate new time, if hour is negative, go back 1 day
-        if utc_offset_hours.is_positive() {
-            let tmp_minute_bind = self.time.minute + utc_offset_minutes as u8;
-            // Again while bigger than 60, will never be bigger than 105 or so
-            if tmp_minute_bind > 59 {
-                self.time.hour += 1;
-                // calc rest minutes of hour
-                let rest_minutes = tmp_minute_bind - 60;
-                debug_assert!(rest_minutes < 60);
-                // add difference to next hour minutes
-                self.time.minute = rest_minutes;
-            } else {
-                self.time.minute = tmp_minute_bind;
-            }
+    /// Mutates the `DateTime` to be in the supplied UTC offset.
+    pub fn with_utc_offset(&mut self, offset: f64) {
+        self.timezone = offset;
+    }
 
-            let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
-            // While possibly bigger than 24, will never be bigger than 36.
-            // + 12h to UTC
-            if tmp_hour_bind > 23 {
-                // next day && possibly next month && possibly next year
-                if self.date.day + 1 > days_in_month(self.date.month) {
-                    // next month && possibly next year
-                    if self.date.month + 1 > 12 {
-                        // next year
-                        self.date.year += 1;
-                        self.date.month = 1;
-                    } else {
-                        self.date.month += 1;
-                    }
-                    self.date.day = 1;
-                } else {
-                    self.date.day += 1;
-                }
-                let rest_hours = tmp_hour_bind - self.time.hour as i16;
-                debug_assert!(rest_hours < 24);
-                // expect: Ok, because previous logic ensures:
-                // rest_hours < 24 and 24 is smaller than 255
-                self.time.hour = TryInto::<u8>::try_into(rest_hours).expect("Everything checked!");
-            } else {
-                // Same day
-                // expect: Ok, because previous logic ensures:
-                // rest_hours < 24 and 24 is smaller than 255
-                self.time.hour =
-                    TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
-            }
-        } else {
-            // utc_offset_minutes is positive, but needs to be subtracted
-            let tmp_minute_bind = {
-                if self.time.minute == 0 {
-                    utc_offset_minutes * -1
-                } else {
-                    self.time.minute as i8 + utc_offset_minutes
-                }
-            };
-            // Again while smaller than 0, will never be smaller than -45 or so
-            if tmp_minute_bind.is_negative() {
-                self.time.hour -= 1;
-                // calc rest minutes of hour
-                let rest_minutes = 60 + tmp_minute_bind;
-                debug_assert!(rest_minutes < 60);
-                // add difference to next hour minutes
-                self.time.minute = rest_minutes as u8;
-            } else {
-                debug_assert!(tmp_minute_bind < 60);
-                self.time.minute = tmp_minute_bind as u8;
-            }
-
-            // utc_offset_hours is negative!
-            let tmp_hour_bind = self.time.hour as i16 + utc_offset_hours;
-            // While possibly smaller than 0, will never be smaller than -12 or so.
-            // - 12h to UTC
-            if tmp_hour_bind.is_negative() {
-                // previous day && possibly previous month && possibly previous year
-                if self.date.day - 1 == 0 {
-                    // previous month && possibly previous year
-                    if self.date.month - 1 == 0 {
-                        // previous year
-                        self.date.year -= 1;
-                        self.date.month = 12;
-                    } else {
-                        self.date.month -= 1;
-                    }
-                    self.date.day = days_in_month(self.date.month);
-                } else {
-                    self.date.day -= 1;
-                }
-                let actual_rest_hours = 24 + tmp_hour_bind;
-                // expect: Ok, because previous logic ensures:
-                // tmp_hour_bind > -24 and 24 + -24 is smaller than 255 and positive
-                self.time.hour =
-                    TryInto::<u8>::try_into(actual_rest_hours).expect("Everything checked!");
-            } else {
-                // Same day
-                // expect: Ok, because previous logic ensures:
-                // tmp_hour_bind is positive and thus >= 0 and smaller 24
-                self.time.hour =
-                    TryInto::<u8>::try_into(tmp_hour_bind).expect("Everything checked!");
-            }
+    /// Mutates the `DateTime` to use the system's local timezone.
+    pub fn with_auto_offset(&mut self) {
+        if let Some(offset) = detect_local_offset() {
+            self.with_utc_offset(offset);
         }
     }
 
-    /// Internal function to set timezone
-    ///
-    /// Does not mutate `Date` or `Time`
-    fn set_timezone(&mut self, timezone: TimeZone) {
-        self.timezone = timezone;
+    /// Returns the current UTC offset in hours.
+    pub fn get_utc_offset(&self) -> f64 {
+        self.timezone
     }
 
     /// Instantiates a new `DateTime` with the specified date and time.
@@ -392,7 +305,7 @@ impl DateTime {
             date,
             time,
             unix_timestamp,
-            timezone: TimeZone::CoordinatedUniversalTime,
+            timezone: 0.0,
         }
     }
 
@@ -419,7 +332,8 @@ impl DateTime {
 
 impl std::fmt::Display for DateTime {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{} {}", self.date, self.time)
+        let (date, time) = self.get_local_components();
+        write!(f, "{} {}", date, time)
     }
 }
 

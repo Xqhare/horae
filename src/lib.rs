@@ -3,7 +3,7 @@
 
 use std::time::Duration;
 
-use date_time::{date::Date, time::Time, DateTime};
+use date_time::{DateTime, date::Date, time::Time};
 
 mod date_time;
 mod time_zones;
@@ -67,22 +67,49 @@ impl Utc {
         }
     }
 
-    /// Mutates a `Utc` with the specified timezone.
+    /// Mutates a `Utc` with the specified timezone enum.
     ///
     /// # Example
     ///
     /// ```rust
     /// use horae::{Utc, TimeZone};
     ///
-    /// let utc_now = Utc::now();
     /// let mut cest_now = Utc::now();
     /// cest_now.with_timezone(TimeZone::CentralEuropeanSummerTime);
-    /// println!("UTC: {}", utc_now);
     /// println!("CEST: {}", cest_now);
-    /// assert_ne!(utc_now.to_string(), cest_now.to_string());
     /// ```
     pub fn with_timezone<T: Into<TimeZone>>(&mut self, timezone: T) {
         self.date_time.with_timezone(timezone.into());
+    }
+
+    /// Mutates a `Utc` with the specified UTC offset in hours.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use horae::Utc;
+    ///
+    /// let mut custom_now = Utc::now();
+    /// custom_now.with_utc_offset(5.5); // IST
+    /// println!("IST: {}", custom_now);
+    /// ```
+    pub fn with_utc_offset(&mut self, offset: f64) {
+        self.date_time.with_utc_offset(offset);
+    }
+
+    /// Mutates a `Utc` by automatically detecting the system's local timezone.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use horae::Utc;
+    ///
+    /// let mut local_now = Utc::now();
+    /// local_now.with_auto_offset();
+    /// println!("Local: {}", local_now);
+    /// ```
+    pub fn with_auto_offset(&mut self) {
+        self.date_time.with_auto_offset();
     }
 
     /// Instantiates a new `Utc` with the specified date and time.
@@ -201,17 +228,17 @@ impl Utc {
         self.date_time.format(formatter)
     }
 
-    /// Returns the `TimeZone` of the `Utc` instance.
+    /// Returns the current UTC offset in hours.
     ///
     /// # Examples
     /// ```rust
     /// use horae::{Utc, TimeZone};
     ///
     /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
-    /// assert_eq!(utc_now.timezone(), TimeZone::CoordinatedUniversalTime);
+    /// assert_eq!(utc_now.get_utc_offset(), 0.0);
     /// ```
-    pub fn timezone(&self) -> TimeZone {
-        self.date_time.timezone
+    pub fn get_utc_offset(&self) -> f64 {
+        self.date_time.get_utc_offset()
     }
 
     /// Returns the unix timestamp of the `Utc` instance.
@@ -238,7 +265,7 @@ impl Utc {
     /// ```
     pub fn from_timestamp(timestamp: f64) -> Utc {
         let mut date_time = DateTime::from_timestamp(timestamp);
-        date_time.with_timezone(TimeZone::CoordinatedUniversalTime);
+        date_time.with_utc_offset(0.0);
         Utc { date_time }
     }
 }
@@ -259,7 +286,7 @@ impl std::ops::Add<Duration> for Utc {
     fn add(self, rhs: Duration) -> Utc {
         let new_timestamp = self.date_time.unix_timestamp + rhs.as_secs_f64();
         let mut date_time = DateTime::from_timestamp(new_timestamp);
-        date_time.with_timezone(self.date_time.timezone);
+        date_time.with_utc_offset(self.date_time.timezone);
         Utc { date_time }
     }
 }
@@ -272,7 +299,7 @@ impl std::ops::Sub<Duration> for Utc {
     fn sub(self, rhs: Duration) -> Utc {
         let new_timestamp = self.date_time.unix_timestamp - rhs.as_secs_f64();
         let mut date_time = DateTime::from_timestamp(new_timestamp);
-        date_time.with_timezone(self.date_time.timezone);
+        date_time.with_utc_offset(self.date_time.timezone);
         Utc { date_time }
     }
 }

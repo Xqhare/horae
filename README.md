@@ -84,7 +84,7 @@ now_in_CEST.with_timezone(TimeZone::CentralEuropeanSummerTime);
 ```
 
 ### Getting a Timezone
-To get the timezone of a date and time, use the `timezone()` function.
+To get the timezone of a date and time, use the `get_utc_offset()` function.
 
 ```rust
 use horae::{TimeZone, Utc};
@@ -93,8 +93,8 @@ let utc_now = Utc::now();
 let mut now_in_CEST = Utc::now();
 now_in_CEST.with_timezone(TimeZone::CentralEuropeanSummerTime);
 
-assert_eq!(utc_now.timezone(), TimeZone::CoordinatedUniversalTime);
-assert_eq!(now_in_CEST.timezone(), TimeZone::CentralEuropeanSummerTime);
+assert_eq!(utc_now.get_utc_offset(), 0.0);
+assert_eq!(now_in_CEST.get_utc_offset(), 2.0);
 ```
 
 ### Unix Timestamp

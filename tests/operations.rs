@@ -1,4 +1,3 @@
-
 #[test]
 fn sub_utc_utc() {
     let utc1 = horae::Utc::now();
