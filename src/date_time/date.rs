@@ -1,6 +1,6 @@
 use crate::tokenizer::{Token, Unit, tokenize};
 
-use super::common::week_day;
+use super::common::{days_in_month, is_this_year_leap_year, week_day};
 
 #[derive(Debug, Copy, Clone)]
 /// Contains all date information
@@ -127,6 +127,12 @@ impl Date {
                         };
                         formatted_string.push_str(week_day);
                     }
+                    Unit::ShortWeekNumber => {
+                        formatted_string.push_str(&format!("{:01}", self.get_weeknumber()));
+                    }
+                    Unit::WeekNumber => {
+                        formatted_string.push_str(&format!("{:02}", self.get_weeknumber()));
+                    }
                     // Dont want to intruduce an error state now...
                     _ => {
                         formatted_string
@@ -140,6 +146,45 @@ impl Date {
         }
 
         formatted_string
+    }
+
+    /// Returns the week number of the date according to ISO 8601
+    pub fn get_weeknumber(&self) -> u8 {
+        let ordinal = self.ordinal_day();
+        let weekday = week_day(self.unix_timestamp);
+        let d_thurs = ordinal as i16 - weekday as i16 + 4;
+
+        if d_thurs < 1 {
+            let days_in_prev_year = if is_this_year_leap_year(self.year - 1) {
+                366
+            } else {
+                365
+            };
+            let d_thurs_prev = d_thurs + days_in_prev_year as i16;
+            return ((d_thurs_prev - 1) / 7 + 1) as u8;
+        }
+
+        let days_in_this_year = if is_this_year_leap_year(self.year) {
+            366
+        } else {
+            365
+        };
+        if d_thurs > days_in_this_year as i16 {
+            return 1;
+        }
+
+        ((d_thurs - 1) / 7 + 1) as u8
+    }
+
+    fn ordinal_day(&self) -> u16 {
+        let mut days = self.day as u16;
+        for m in 1..self.month {
+            days += days_in_month(m) as u16;
+            if m == 2 && is_this_year_leap_year(self.year) {
+                days += 1;
+            }
+        }
+        days
     }
 }
 

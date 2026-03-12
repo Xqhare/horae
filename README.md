@@ -225,6 +225,9 @@ assert_eq!("01 09.000", date_in_past.format("%mm %MM.%MS").to_string());
 assert_eq!("Tue", date_in_past.format("%wd").to_string());
 assert_eq!("Tuesday", date_in_past.format("%wdd").to_string());
 
+assert_eq!("1", date_in_past.format("%wn").to_string());
+assert_eq!("01", date_in_past.format("%wnn").to_string());
+
 // Quick note: Upper- and lowercase letters matter for the formatter to work. Lowercase for dates, uppercase for times.
 
 // For only printing the date, use `.date()`. Format is YYYY-MM-DD
@@ -274,6 +277,7 @@ assert_eq!("2019-01-01", date.to_string());
 assert_eq!(2019, date.year);
 assert_eq!(1, date.month);
 assert_eq!(1, date.day);
+assert_eq!(1, date.get_weeknumber());
 ```
 
 ### Time

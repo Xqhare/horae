@@ -216,6 +216,12 @@ impl DateTime {
                         };
                         formatted_string.push_str(week_day);
                     }
+                    Unit::ShortWeekNumber => {
+                        formatted_string.push_str(&format!("{:01}", local_date.get_weeknumber()));
+                    }
+                    Unit::WeekNumber => {
+                        formatted_string.push_str(&format!("{:02}", local_date.get_weeknumber()));
+                    }
                 },
                 Token::Separator(separator) => {
                     formatted_string.push_str(&separator.separator_symbol);
@@ -224,6 +230,14 @@ impl DateTime {
         }
 
         formatted_string
+    }
+
+    /// Returns the week number of the date according to ISO 8601.
+    ///
+    /// The week number is based on the local date (including timezone).
+    pub fn get_weeknumber(&self) -> u8 {
+        let (local_date, _) = self.get_local_components();
+        local_date.get_weeknumber()
     }
 
     /// Mutates the `DateTime` to be in the supplied `TimeZone`.

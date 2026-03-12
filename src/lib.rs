@@ -241,6 +241,19 @@ impl Utc {
         self.date_time.get_utc_offset()
     }
 
+    /// Returns the week number of the date according to ISO 8601.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use horae::Utc;
+    ///
+    /// let utc_now = Utc::from_ymd_hms(2026, 3, 12, 9, 9, 9);
+    /// assert_eq!(utc_now.get_weeknumber(), 11);
+    /// ```
+    pub fn get_weeknumber(&self) -> u8 {
+        self.date_time.get_weeknumber()
+    }
+
     /// Returns the unix timestamp of the `Utc` instance.
     ///
     /// # Examples

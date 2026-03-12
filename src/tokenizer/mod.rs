@@ -124,6 +124,20 @@ pub fn tokenize<S: Into<String>>(format: S) -> Vec<Token> {
                     separator_symbol: rest,
                 }));
             }
+        } else if token.contains("wn") {
+            if token.contains("wnn") {
+                let rest = token.replace("wnn", "");
+                generated_tokens.push(Token::Unit(Unit::WeekNumber));
+                generated_tokens.push(Token::Separator(Separator {
+                    separator_symbol: rest,
+                }));
+            } else {
+                let rest = token.replace("wn", "");
+                generated_tokens.push(Token::Unit(Unit::ShortWeekNumber));
+                generated_tokens.push(Token::Separator(Separator {
+                    separator_symbol: rest,
+                }));
+            }
         } else if token.contains("S") {
             if token.contains("SS") {
                 let rest = token.replace("S", "");

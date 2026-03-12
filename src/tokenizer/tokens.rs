@@ -31,4 +31,6 @@ pub enum Unit {
     FullYear,
     ShortWeekDay,
     WeekDay,
+    ShortWeekNumber,
+    WeekNumber,
 }
