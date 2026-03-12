@@ -336,8 +336,33 @@ impl DateTime {
         second: u8,
         timezone: TimeZone,
     ) -> DateTime {
+        DateTime::from_ymd_hms_offset(
+            year,
+            month,
+            day,
+            hour,
+            minute,
+            second,
+            timezone.get_utc_offset(),
+        )
+    }
+
+    /// Instantiates a new `DateTime` with the specified date, time and UTC offset.
+    ///
+    /// # Panics
+    /// This function will panic if supplied arguments are out of range for their respective fields
+    pub fn from_ymd_hms_offset(
+        year: u16,
+        month: u8,
+        day: u8,
+        hour: u8,
+        minute: u8,
+        second: u8,
+        offset: f64,
+    ) -> DateTime {
         let mut out = DateTime::from_ymd_hms(year, month, day, hour, minute, second);
-        out.with_timezone(timezone);
+        out.unix_timestamp -= offset * SECONDS_IN_HOUR;
+        out.with_utc_offset(offset);
         out
     }
 }

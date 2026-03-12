@@ -140,6 +140,8 @@ impl Utc {
 
     /// Instantiates a new `Utc` with the specified date, time and timezone.
     ///
+    /// The date and time are assumed to be local to the specified timezone.
+    ///
     /// # Panics
     /// Will panic if the date is invalid.
     /// Valid ranges are:
@@ -154,9 +156,11 @@ impl Utc {
     /// ```rust
     /// use horae::{Utc, TimeZone};
     ///
-    /// let utc_now = Utc::from_ymd_hms_timezone(2019, 1, 1, 9, 9, 9, TimeZone::CentralEuropeanSummerTime);
-    /// println!("{}", utc_now);
-    /// assert_eq!(utc_now.to_string(), "2019-01-01 11:09:09.000");
+    /// let local = Utc::from_ymd_hms_timezone(2019, 1, 1, 9, 9, 9, TimeZone::CentralEuropeanSummerTime);
+    /// println!("{}", local);
+    /// assert_eq!(local.to_string(), "2019-01-01 09:09:09.000");
+    /// // CEST is UTC+2, so the underlying UTC time is 07:09:09
+    /// assert_eq!(local.unix_timestamp(), Utc::from_ymd_hms(2019, 1, 1, 7, 9, 9).unix_timestamp());
     /// ```
     pub fn from_ymd_hms_timezone(
         year: u16,
@@ -170,6 +174,44 @@ impl Utc {
         Utc {
             date_time: DateTime::from_ymd_hms_timezone(
                 year, month, day, hour, minute, second, timezone,
+            ),
+        }
+    }
+
+    /// Instantiates a new `Utc` with the specified date, time and UTC offset in hours.
+    ///
+    /// The date and time are assumed to be local to the specified offset.
+    ///
+    /// # Panics
+    /// Will panic if the date is invalid.
+    /// Valid ranges are:
+    /// - year: 1970-9999
+    /// - month: 1-12
+    /// - day: 1-31
+    /// - hour: 0-23
+    /// - minute: 0-59
+    /// - second: 0-59
+    ///
+    /// # Example
+    /// ```rust
+    /// use horae::Utc;
+    ///
+    /// let local = Utc::from_ymd_hms_offset(2019, 1, 1, 9, 9, 9, 5.5); // IST
+    /// println!("{}", local);
+    /// assert_eq!(local.to_string(), "2019-01-01 09:09:09.000");
+    /// ```
+    pub fn from_ymd_hms_offset(
+        year: u16,
+        month: u8,
+        day: u8,
+        hour: u8,
+        minute: u8,
+        second: u8,
+        offset: f64,
+    ) -> Utc {
+        Utc {
+            date_time: DateTime::from_ymd_hms_offset(
+                year, month, day, hour, minute, second, offset,
             ),
         }
     }
