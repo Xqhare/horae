@@ -106,7 +106,8 @@ impl DateTime {
                             let abs_offset = self.timezone.abs();
                             let hours = abs_offset.trunc() as i32;
                             let minutes = (abs_offset.fract() * 60.0).round() as i32;
-                            formatted_string.push_str(&format!("GMT{}{:02}:{:02}", sign, hours, minutes));
+                            formatted_string
+                                .push_str(&format!("GMT{}{:02}:{:02}", sign, hours, minutes));
                         }
                     }
                     Unit::Millisecond => {
@@ -187,7 +188,8 @@ impl DateTime {
                         formatted_string.push_str(&format!("{}", local_date.year));
                     }
                     Unit::ShortWeekDay => {
-                        let week_day_num = week_day(self.unix_timestamp + self.timezone * SECONDS_IN_HOUR);
+                        let week_day_num =
+                            week_day(self.unix_timestamp + self.timezone * SECONDS_IN_HOUR);
                         let week_day = match week_day_num {
                             1 => "Mon",
                             2 => "Tue",
@@ -202,7 +204,8 @@ impl DateTime {
                         formatted_string.push_str(week_day);
                     }
                     Unit::WeekDay => {
-                        let week_day_num = week_day(self.unix_timestamp + self.timezone * SECONDS_IN_HOUR);
+                        let week_day_num =
+                            week_day(self.unix_timestamp + self.timezone * SECONDS_IN_HOUR);
                         let week_day = match week_day_num {
                             1 => "Monday",
                             2 => "Tuesday",
@@ -262,7 +265,10 @@ impl DateTime {
         self.timezone
     }
 
-    /// Instantiates a new `DateTime` with the specified date and time.
+    /// Instantiates a new `DateTime` with the specified date and time
+    ///
+    /// This function assumes that the passed in data is in UTC.
+    /// To construct from a local time, use `from_ymd_hms_timezone` or `from_ymd_hms_offset`.
     ///
     /// # Panics
     /// This function will panic if supplied arguments are out of range for their respective fields
@@ -325,6 +331,9 @@ impl DateTime {
 
     /// Instantiates a new `DateTime` with the specified date, time and timezone.
     ///
+    /// This function assumes that the passed in data is in local time.
+    /// To construct from a UTC time, use `from_ymd_hms`.
+    ///
     /// # Panics
     /// This function will panic if supplied arguments are out of range for their respective fields
     pub fn from_ymd_hms_timezone(
@@ -348,6 +357,9 @@ impl DateTime {
     }
 
     /// Instantiates a new `DateTime` with the specified date, time and UTC offset.
+    ///
+    /// This function assumes that the passed in data is in local time.
+    /// To construct from a UTC time, use `from_ymd_hms`.
     ///
     /// # Panics
     /// This function will panic if supplied arguments are out of range for their respective fields

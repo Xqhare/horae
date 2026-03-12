@@ -326,6 +326,27 @@ impl Utc {
     }
 }
 
+impl From<f64> for Utc {
+    fn from(timestamp: f64) -> Self {
+        Utc::from_timestamp(timestamp)
+    }
+}
+
+impl From<Utc> for f64 {
+    fn from(utc: Utc) -> Self {
+        utc.unix_timestamp()
+    }
+}
+
+impl From<std::time::SystemTime> for Utc {
+    fn from(st: std::time::SystemTime) -> Self {
+        match st.duration_since(std::time::UNIX_EPOCH) {
+            Ok(d) => Utc::from_timestamp(d.as_secs_f64()),
+            Err(_) => Utc::from_timestamp(0.0),
+        }
+    }
+}
+
 impl std::ops::Sub<Utc> for Utc {
     type Output = Duration;
 
