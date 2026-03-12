@@ -10,6 +10,7 @@ mod time_zones;
 mod tokenizer;
 
 pub use crate::time_zones::TimeZone;
+pub use crate::time_zones::detect_local_offset as detect_local_utc_offset;
 
 #[derive(Debug, Clone, Copy)]
 /// Basic building block for date and time.
