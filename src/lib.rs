@@ -62,7 +62,7 @@ impl Utc {
     /// println!("{}", utc_now);
     /// assert_ne!(utc_now.to_string(), "1970-01-01 00:00:00.000");
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn now() -> Utc {
         Utc {
             date_time: DateTime::now(),
@@ -134,7 +134,7 @@ impl Utc {
     /// println!("{}", utc_now);
     /// assert_eq!(utc_now.to_string(), "2019-01-01 09:09:09.000");
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn from_ymd_hms(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8) -> Utc {
         Utc {
             date_time: DateTime::from_ymd_hms(year, month, day, hour, minute, second),
@@ -165,7 +165,7 @@ impl Utc {
     /// // CEST is UTC+2, so the underlying UTC time is 07:09:09
     /// assert_eq!(local.unix_timestamp(), Utc::from_ymd_hms(2019, 1, 1, 7, 9, 9).unix_timestamp());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn from_ymd_hms_timezone(
         year: u16,
         month: u8,
@@ -204,7 +204,7 @@ impl Utc {
     /// println!("{}", local);
     /// assert_eq!(local.to_string(), "2019-01-01 09:09:09.000");
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn from_ymd_hms_offset(
         year: u16,
         month: u8,
@@ -236,7 +236,7 @@ impl Utc {
     /// assert_eq!(utc_now.time().second, 9);
     /// assert_eq!(utc_now.time().subseconds, 0);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn time(&self) -> Time {
         self.date_time.time()
     }
@@ -255,7 +255,7 @@ impl Utc {
     /// assert_eq!(utc_now.date().month, 1);
     /// assert_eq!(utc_now.date().day, 1);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn date(&self) -> Date {
         self.date_time.date()
     }
@@ -273,7 +273,7 @@ impl Utc {
     /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
     /// assert_eq!(utc_now.format("%yyyy-%mm-%dd %HH:%MM:%SS | %tz"), "2019-01-01 09:09:09 | Coordinated Universal Time");
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn format(&self, formatter: &str) -> String {
         self.date_time.format(formatter)
     }
@@ -287,7 +287,7 @@ impl Utc {
     /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
     /// assert_eq!(utc_now.get_utc_offset(), 0.0);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn get_utc_offset(&self) -> f64 {
         self.date_time.get_utc_offset()
     }
@@ -301,7 +301,7 @@ impl Utc {
     /// let utc_now = Utc::from_ymd_hms(2026, 3, 12, 9, 9, 9);
     /// assert_eq!(utc_now.get_weeknumber(), 11);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn get_weeknumber(&self) -> u8 {
         self.date_time.get_weeknumber()
     }
@@ -315,7 +315,7 @@ impl Utc {
     /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
     /// assert_eq!(utc_now.unix_timestamp(), 1546333749.0);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn unix_timestamp(&self) -> f64 {
         self.date_time.unix_timestamp
     }
@@ -329,7 +329,7 @@ impl Utc {
     /// let utc_now = Utc::from_timestamp(1546333749.0);
     /// assert_eq!(utc_now.to_string(), "2019-01-01 09:09:09.000");
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn from_timestamp(timestamp: f64) -> Utc {
         let mut date_time = DateTime::from_timestamp(timestamp);
         date_time.with_utc_offset(0.0);

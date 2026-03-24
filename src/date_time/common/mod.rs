@@ -239,10 +239,10 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
             if new_day == 0 {
                 prev_month = month;
                 month -= 1;
-                if month <= 2 && is_this_year_leap_year(year) && prev_month != 2
-                    && prev_month != 2 {
-                        tmp_leap_year_store -= 1;
-                    }
+                if month <= 2 && is_this_year_leap_year(year) && prev_month != 2 && prev_month != 2
+                {
+                    tmp_leap_year_store -= 1;
+                }
                 if month == 0 {
                     year -= 1;
                     // I know its not read, unused_assignments flag is only for line below!

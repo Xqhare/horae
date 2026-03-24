@@ -97,7 +97,7 @@ fn formatter_timezone() {
         let mut time1 = Utc::from_ymd_hms_timezone(2021, 12, 31, 23, 59, 59, tz);
         time1.with_timezone(tz);
         let time1_str = time1.format("%tz");
-        
+
         let offset = tz.get_utc_offset();
         if offset == 0.0 {
             assert_eq!(time1_str, "Coordinated Universal Time");

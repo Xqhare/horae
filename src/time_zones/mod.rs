@@ -248,7 +248,7 @@ impl From<String> for TimeZone {
 impl TimeZone {
     /// Returns all time zones
     /// Convenient for testing or showing all time zones
-    #[must_use] 
+    #[must_use]
     pub fn get_all() -> Vec<TimeZone> {
         vec![
             TimeZone::AcreTime,
@@ -456,7 +456,7 @@ impl TimeZone {
     /// Returns the utc offset
     /// The format is in xx.yy
     /// where xx is hours and yy fractions of an hour
-    #[must_use] 
+    #[must_use]
     pub fn get_utc_offset(&self) -> f64 {
         match self {
             TimeZone::AustralianCentralDaylightSavingTime => 10.5,
@@ -664,7 +664,7 @@ impl TimeZone {
 
 /// Detects the current local UTC offset by reading /etc/localtime.
 /// This is a unix only feature.
-#[must_use] 
+#[must_use]
 pub fn detect_local_offset() -> Option<f64> {
     let mut file = File::open("/etc/localtime").ok()?;
     parse_tzif(&mut file)

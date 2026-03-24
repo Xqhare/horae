@@ -106,8 +106,7 @@ impl DateTime {
                             let abs_offset = self.timezone.abs();
                             let hours = abs_offset.trunc() as i32;
                             let minutes = (abs_offset.fract() * 60.0).round() as i32;
-                            formatted_string
-                                .push_str(&format!("GMT{sign}{hours:02}:{minutes:02}"));
+                            formatted_string.push_str(&format!("GMT{sign}{hours:02}:{minutes:02}"));
                         }
                     }
                     Unit::Millisecond => {

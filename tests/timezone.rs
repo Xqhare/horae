@@ -23,7 +23,10 @@ fn positive() {
     // Input is local, so output should match input
     assert_eq!("2021-02-25 13:59:59.000", cest.to_string());
     // Underlying UTC should be 11:59:59
-    assert_eq!(cest.unix_timestamp(), Utc::from_ymd_hms(2021, 2, 25, 11, 59, 59).unix_timestamp());
+    assert_eq!(
+        cest.unix_timestamp(),
+        Utc::from_ymd_hms(2021, 2, 25, 11, 59, 59).unix_timestamp()
+    );
 }
 
 #[test]
@@ -32,7 +35,10 @@ fn negative() {
     let mart = Utc::from_ymd_hms_timezone(2021, 02, 25, 13, 59, 59, TimeZone::MarquesasIslandsTime);
     assert_eq!("2021-02-25 13:59:59.000", mart.to_string());
     // Underlying UTC should be 23:29:59 (13:59:59 - (-9.5h) = 13:59:59 + 9:30 = 23:29:59)
-    assert_eq!(mart.unix_timestamp(), Utc::from_ymd_hms(2021, 2, 25, 23, 29, 59).unix_timestamp());
+    assert_eq!(
+        mart.unix_timestamp(),
+        Utc::from_ymd_hms(2021, 2, 25, 23, 29, 59).unix_timestamp()
+    );
 }
 
 #[test]
