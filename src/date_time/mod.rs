@@ -107,7 +107,7 @@ impl DateTime {
                             let hours = abs_offset.trunc() as i32;
                             let minutes = (abs_offset.fract() * 60.0).round() as i32;
                             formatted_string
-                                .push_str(&format!("GMT{}{:02}:{:02}", sign, hours, minutes));
+                                .push_str(&format!("GMT{sign}{hours:02}:{minutes:02}"));
                         }
                     }
                     Unit::Millisecond => {
@@ -148,7 +148,7 @@ impl DateTime {
                             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
                             "Nov", "Dec",
                         ];
-                        formatted_string.push_str(&MONTHS[local_date.month as usize - 1]);
+                        formatted_string.push_str(MONTHS[local_date.month as usize - 1]);
                     }
                     Unit::WordMonth => {
                         const MONTHS: [&str; 12] = [
@@ -165,7 +165,7 @@ impl DateTime {
                             "November",
                             "December",
                         ];
-                        formatted_string.push_str(&MONTHS[local_date.month as usize - 1]);
+                        formatted_string.push_str(MONTHS[local_date.month as usize - 1]);
                     }
                     Unit::ShortYear => {
                         formatted_string.push_str(&format!(
@@ -281,8 +281,8 @@ impl DateTime {
         second: u8,
     ) -> DateTime {
         assert!(year >= 1970);
-        assert!(month >= 1 && month <= 12);
-        assert!(day >= 1 && day <= 31);
+        assert!((1..=12).contains(&month));
+        assert!((1..=31).contains(&day));
         assert!(hour <= 23);
         assert!(minute <= 59);
         assert!(second <= 59);
@@ -297,29 +297,29 @@ impl DateTime {
                 tmp
             }
         };
-        let years_in_sec = years as f64 * SECONDS_IN_YEAR;
+        let years_in_sec = f64::from(years) * SECONDS_IN_YEAR;
         let months_in_sec: f64 = {
             let mut total_days: u16 = 0;
             for i in 1..month {
-                total_days += days_in_month(i) as u16;
+                total_days += u16::from(days_in_month(i));
             }
-            total_days as f64 * SECONDS_IN_DAY
+            f64::from(total_days) * SECONDS_IN_DAY
         };
 
         // The calculated date is now on the first of this month.
         // Because of this we need to subtract 1 from day
         let days_in_sec = {
-            let total_days = day as u16 + leap_years - 1;
-            total_days as f64 * SECONDS_IN_DAY
+            let total_days = u16::from(day) + leap_years - 1;
+            f64::from(total_days) * SECONDS_IN_DAY
         };
-        let hours_in_sec = hour as f64 * SECONDS_IN_HOUR;
-        let minutes_in_sec: f64 = minute as f64 * SECONDS_IN_MINUTE as f64;
+        let hours_in_sec = f64::from(hour) * SECONDS_IN_HOUR;
+        let minutes_in_sec: f64 = f64::from(minute) * f64::from(SECONDS_IN_MINUTE);
         let unix_timestamp = years_in_sec
             + months_in_sec
             + days_in_sec
             + hours_in_sec
             + minutes_in_sec
-            + second as f64;
+            + f64::from(second);
         let date = Date::from((year, month, day, unix_timestamp));
         DateTime {
             date,
@@ -384,7 +384,7 @@ impl DateTime {
 impl std::fmt::Display for DateTime {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let (date, time) = self.get_local_components();
-        write!(f, "{} {}", date, time)
+        write!(f, "{date} {time}")
     }
 }
 

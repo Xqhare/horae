@@ -74,7 +74,7 @@ pub fn week_day(timestamp: f64) -> u8 {
     let days_since_epoch = (timestamp / SECONDS_IN_DAY).trunc();
     let completed_weeks = (days_since_epoch / 7.0).trunc();
     let left_days = days_since_epoch - (completed_weeks * 7.0);
-    let out = left_days + EPOCH_WEEK_DAY as f64;
+    let out = left_days + f64::from(EPOCH_WEEK_DAY);
     if out > 7.0 { out as u8 - 7 } else { out as u8 }
 }
 
@@ -103,9 +103,9 @@ pub fn leap_years_since_epoch(years_since_epoch: u16) -> u16 {
 
 /// Checks if the specified year is a leap year
 pub fn is_this_year_leap_year(year: u16) -> bool {
-    if year % 4 == 0 {
-        if year % 100 == 0 {
-            if year % 400 == 0 {
+    if year.is_multiple_of(4) {
+        if year.is_multiple_of(100) {
+            if year.is_multiple_of(400) {
                 return true;
             }
         } else {
@@ -139,18 +139,18 @@ pub fn leap_seconds_since_epoch(years_since_epoch: u16) -> u16 {
 pub fn make_now_time(rest_timestamp: f64) -> Time {
     let mut rest_timestamp = rest_timestamp;
     let hour = (rest_timestamp / SECONDS_IN_HOUR).floor() as u8;
-    rest_timestamp -= hour as f64 * SECONDS_IN_HOUR;
-    let minute = (rest_timestamp / SECONDS_IN_MINUTE as f64).floor() as u8;
-    rest_timestamp -= minute as f64 * SECONDS_IN_MINUTE as f64;
+    rest_timestamp -= f64::from(hour) * SECONDS_IN_HOUR;
+    let minute = (rest_timestamp / f64::from(SECONDS_IN_MINUTE)).floor() as u8;
+    rest_timestamp -= f64::from(minute) * f64::from(SECONDS_IN_MINUTE);
     let second = rest_timestamp.floor() as u8;
-    let rest = rest_timestamp - second as f64;
+    let rest = rest_timestamp - f64::from(second);
     Time::from((hour, minute, second, rest))
 }
 
 /// Creates a new date from a unix timestamp
 #[allow(unused_assignments)]
 pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
-    let mut tmp_timestamp = timestamp.clone();
+    let mut tmp_timestamp = timestamp;
 
     let years_since_epoch = ((timestamp / SECONDS_IN_DAY).trunc() / DAYS_IN_YEAR_APPROX).trunc();
     let mut leap_years = leap_years_since_epoch(years_since_epoch as u16);
@@ -158,19 +158,19 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     tmp_timestamp -= years_since_epoch * SECONDS_IN_YEAR;
 
     let days_this_year = (tmp_timestamp / SECONDS_IN_DAY).trunc();
-    tmp_timestamp -= days_this_year as f64 * SECONDS_IN_DAY;
+    tmp_timestamp -= days_this_year * SECONDS_IN_DAY;
 
     let mut month: u8 = 0;
     let mut days_into_the_year: u16 = 0;
-    while (days_into_the_year as f64) < days_this_year {
-        days_into_the_year += NUMBER_OF_DAYS_PER_MONTH[month as usize] as u16;
+    while f64::from(days_into_the_year) < days_this_year {
+        days_into_the_year += u16::from(NUMBER_OF_DAYS_PER_MONTH[month as usize]);
         month += 1;
     }
     let completed_months = month.saturating_sub(1);
     let completed_month_days = {
         let mut out = 0;
         for i in 0..completed_months {
-            out += NUMBER_OF_DAYS_PER_MONTH[i as usize] as u16;
+            out += u16::from(NUMBER_OF_DAYS_PER_MONTH[i as usize]);
         }
         out
     };
@@ -184,7 +184,7 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
         leap_years -= 1;
     }
 
-    debug_assert!(days_into_the_year >= completed_month_days as u16);
+    debug_assert!(days_into_the_year >= completed_month_days);
 
     let mut days_left_in_month: i16 = days_this_year as i16 - completed_month_days as i16;
 
@@ -204,7 +204,7 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     // taking care of edge case: leap_years > 365;
     let mut tmp_leap_year_store = leap_years;
     // remove full years of leap year days
-    while tmp_leap_year_store as f64 >= DAYS_IN_YEAR_APPROX {
+    while f64::from(tmp_leap_year_store) >= DAYS_IN_YEAR_APPROX {
         if is_this_year_leap_year(year) {
             tmp_leap_year_store -= 1;
         }
@@ -221,8 +221,8 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
     let mut prev_month = 0;
     while tmp_leap_year_store > 0 {
         // loop through as many months as it takes
-        if tmp_leap_year_store > day as u16 {
-            tmp_leap_year_store -= day as u16;
+        if tmp_leap_year_store > u16::from(day) {
+            tmp_leap_year_store -= u16::from(day);
             prev_month = month;
             month -= 1;
             if month == 0 {
@@ -239,11 +239,10 @@ pub fn make_now_date(timestamp: f64) -> (Date, f64, f64) {
             if new_day == 0 {
                 prev_month = month;
                 month -= 1;
-                if month <= 2 && is_this_year_leap_year(year) && prev_month != 2 {
-                    if prev_month != 2 {
+                if month <= 2 && is_this_year_leap_year(year) && prev_month != 2
+                    && prev_month != 2 {
                         tmp_leap_year_store -= 1;
                     }
-                }
                 if month == 0 {
                     year -= 1;
                     // I know its not read, unused_assignments flag is only for line below!

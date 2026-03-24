@@ -59,7 +59,7 @@ impl Date {
                             "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
                             "Nov", "Dec",
                         ];
-                        formatted_string.push_str(&MONTHS[self.month as usize - 1]);
+                        formatted_string.push_str(MONTHS[self.month as usize - 1]);
                     }
                     Unit::WordMonth => {
                         const MONTHS: [&str; 12] = [
@@ -76,7 +76,7 @@ impl Date {
                             "November",
                             "December",
                         ];
-                        formatted_string.push_str(&MONTHS[self.month as usize - 1]);
+                        formatted_string.push_str(MONTHS[self.month as usize - 1]);
                     }
                     Unit::ShortYear => {
                         formatted_string.push_str(&format!(
@@ -98,7 +98,7 @@ impl Date {
                         formatted_string.push_str(&format!("{}", self.year));
                     }
                     Unit::WeekDay => {
-                        let week_day_num = week_day(*&self.unix_timestamp);
+                        let week_day_num = week_day(self.unix_timestamp);
                         let week_day = match week_day_num {
                             1 => "Monday",
                             2 => "Tuesday",
@@ -113,7 +113,7 @@ impl Date {
                         formatted_string.push_str(week_day);
                     }
                     Unit::ShortWeekDay => {
-                        let week_day_num = week_day(*&self.unix_timestamp);
+                        let week_day_num = week_day(self.unix_timestamp);
                         let week_day = match week_day_num {
                             1 => "Mon",
                             2 => "Tue",
@@ -152,7 +152,7 @@ impl Date {
     pub fn get_weeknumber(&self) -> u8 {
         let ordinal = self.ordinal_day();
         let weekday = week_day(self.unix_timestamp);
-        let d_thurs = ordinal as i16 - weekday as i16 + 4;
+        let d_thurs = ordinal as i16 - i16::from(weekday) + 4;
 
         if d_thurs < 1 {
             let days_in_prev_year = if is_this_year_leap_year(self.year - 1) {
@@ -177,9 +177,9 @@ impl Date {
     }
 
     fn ordinal_day(&self) -> u16 {
-        let mut days = self.day as u16;
+        let mut days = u16::from(self.day);
         for m in 1..self.month {
-            days += days_in_month(m) as u16;
+            days += u16::from(days_in_month(m));
             if m == 2 && is_this_year_leap_year(self.year) {
                 days += 1;
             }

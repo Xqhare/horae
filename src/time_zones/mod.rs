@@ -210,8 +210,8 @@ pub enum TimeZone {
 
 impl std::fmt::Display for TimeZone {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let tmp_self_bind = format!("{:?}", self);
-        let tmp_self = tmp_self_bind.replace("\"", "");
+        let tmp_self_bind = format!("{self:?}");
+        let tmp_self = tmp_self_bind.replace('"', "");
         let tmp_self = tmp_self.replace("TimeZone::", "");
         // its ascii!
         let mut tmp = tmp_self
@@ -229,14 +229,14 @@ impl std::fmt::Display for TimeZone {
         if tmp == "Utc" {
             tmp = "Coordinated Universal Time".to_string();
         }
-        write!(f, "{}", tmp)
+        write!(f, "{tmp}")
     }
 }
 
 impl From<String> for TimeZone {
     fn from(s: String) -> TimeZone {
         for tz in TimeZone::get_all() {
-            if format!("{}", tz) == s {
+            if format!("{tz}") == s {
                 return tz;
             }
         }
@@ -248,6 +248,7 @@ impl From<String> for TimeZone {
 impl TimeZone {
     /// Returns all time zones
     /// Convenient for testing or showing all time zones
+    #[must_use] 
     pub fn get_all() -> Vec<TimeZone> {
         vec![
             TimeZone::AcreTime,
@@ -455,6 +456,7 @@ impl TimeZone {
     /// Returns the utc offset
     /// The format is in xx.yy
     /// where xx is hours and yy fractions of an hour
+    #[must_use] 
     pub fn get_utc_offset(&self) -> f64 {
         match self {
             TimeZone::AustralianCentralDaylightSavingTime => 10.5,
@@ -662,6 +664,7 @@ impl TimeZone {
 
 /// Detects the current local UTC offset by reading /etc/localtime.
 /// This is a unix only feature.
+#[must_use] 
 pub fn detect_local_offset() -> Option<f64> {
     let mut file = File::open("/etc/localtime").ok()?;
     parse_tzif(&mut file)
@@ -735,7 +738,7 @@ fn parse_tzif(file: &mut File) -> Option<f64> {
         file.read_exact(&mut ttinfo).ok()?;
 
         let utoff = i32::from_be_bytes(ttinfo[0..4].try_into().unwrap());
-        return Some(utoff as f64 / 3600.0);
+        Some(f64::from(utoff) / 3600.0)
     } else {
         // Version 1 (32-bit transitions)
         let now = std::time::SystemTime::now()
@@ -767,7 +770,7 @@ fn parse_tzif(file: &mut File) -> Option<f64> {
         file.read_exact(&mut ttinfo).ok()?;
 
         let utoff = i32::from_be_bytes(ttinfo[0..4].try_into().unwrap());
-        return Some(utoff as f64 / 3600.0);
+        Some(f64::from(utoff) / 3600.0)
     }
 }
 
