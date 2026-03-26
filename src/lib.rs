@@ -399,3 +399,15 @@ impl std::fmt::Display for Utc {
         write!(f, "{}", self.date_time)
     }
 }
+
+impl PartialEq for Utc {
+    fn eq(&self, other: &Utc) -> bool {
+        self.date_time == other.date_time
+    }
+}
+
+impl PartialOrd for Utc {
+    fn partial_cmp(&self, other: &Utc) -> Option<std::cmp::Ordering> {
+        self.date_time.partial_cmp(&other.date_time)
+    }
+}

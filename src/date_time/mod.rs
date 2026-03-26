@@ -387,6 +387,20 @@ impl std::fmt::Display for DateTime {
     }
 }
 
+impl PartialOrd for DateTime {
+    fn partial_cmp(&self, other: &DateTime) -> Option<std::cmp::Ordering> {
+        self.unix_timestamp.partial_cmp(&other.unix_timestamp)
+    }
+}
+
+impl PartialEq for DateTime {
+    fn eq(&self, other: &DateTime) -> bool {
+        self.unix_timestamp == other.unix_timestamp
+    }
+}
+
+impl Eq for DateTime {}
+
 #[test]
 fn from_timestamp() {
     let ts_1970_01_01_00_00_00 = DateTime::from_timestamp(0.0);
