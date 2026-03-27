@@ -320,6 +320,21 @@ impl Utc {
         self.date_time.unix_timestamp
     }
 
+    /// Returns the unix timestamp of the `Utc` instance as a `u64`.
+    /// It holds the milliseconds since epoch.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use horae::Utc;
+    ///
+    /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
+    /// assert_eq!(utc_now.unix_timestamp_u64(), 1546333749);
+    /// ```
+    #[must_use]
+    pub fn unix_timestamp_u64(&self) -> u64 {
+        (self.date_time.unix_timestamp * 1000.0) as u64
+    }
+
     /// Instantiates a new `Utc` from a unix timestamp.
     ///
     /// # Examples
