@@ -328,7 +328,7 @@ impl Utc {
     /// use horae::Utc;
     ///
     /// let utc_now = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
-    /// assert_eq!(utc_now.unix_timestamp_u64(), 1546333749);
+    /// assert_eq!(utc_now.unix_timestamp_u64(), 1546333749000);
     /// ```
     #[must_use]
     pub fn unix_timestamp_u64(&self) -> u64 {
