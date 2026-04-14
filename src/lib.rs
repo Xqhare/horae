@@ -350,6 +350,30 @@ impl Utc {
         date_time.with_utc_offset(0.0);
         Utc { date_time }
     }
+
+    /// Returns the formatted string of the `Utc` instance according to RFC 3339.
+    #[must_use]
+    pub fn to_rfc3339(&self) -> String {
+        self.date_time.to_rfc3339()
+    }
+
+    /// Parses an RFC 3339 string into a `Utc`.
+    #[must_use]
+    pub fn from_rfc3339(s: &str) -> Option<Utc> {
+        DateTime::from_rfc3339(s).map(|date_time| Utc { date_time })
+    }
+
+    /// Returns the formatted string of the `Utc` instance according to RFC 9557.
+    #[must_use]
+    pub fn to_rfc9557(&self) -> String {
+        self.date_time.to_rfc9557()
+    }
+
+    /// Parses an RFC 9557 string into a `Utc`.
+    #[must_use]
+    pub fn from_rfc9557(s: &str) -> Option<Utc> {
+        DateTime::from_rfc9557(s).map(|date_time| Utc { date_time })
+    }
 }
 
 impl From<f64> for Utc {

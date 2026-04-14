@@ -264,6 +264,197 @@ impl DateTime {
         self.timezone
     }
 
+    /// Returns the formatted string of the `DateTime` according to RFC 3339.
+    pub fn to_rfc3339(&self) -> String {
+        let (local_date, local_time) = self.get_local_components();
+        let mut formatted_string = format!(
+            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}",
+            local_date.year,
+            local_date.month,
+            local_date.day,
+            local_time.hour,
+            local_time.minute,
+            local_time.second
+        );
+        if local_time.subseconds > 0 {
+            let sub = format!("{:09}", local_time.subseconds);
+            let trimmed = sub.trim_end_matches('0');
+            if !trimmed.is_empty() {
+                formatted_string.push('.');
+                formatted_string.push_str(trimmed);
+            }
+        }
+        if self.timezone == 0.0 {
+            formatted_string.push('Z');
+        } else {
+            let sign = if self.timezone.is_sign_positive() {
+                "+"
+            } else {
+                "-"
+            };
+            let abs_offset = self.timezone.abs();
+            let hours = abs_offset.trunc() as i32;
+            let minutes = (abs_offset.fract() * 60.0).round() as i32;
+            formatted_string.push_str(&format!("{sign}{hours:02}:{minutes:02}"));
+        }
+        formatted_string
+    }
+
+    /// Parses an RFC 3339 string into a `DateTime`.
+    pub fn from_rfc3339(s: &str) -> Option<DateTime> {
+        if s.len() < 19 {
+            return None;
+        }
+        let year = s[0..4].parse::<u16>().ok()?;
+        if s.as_bytes()[4] != b'-' {
+            return None;
+        }
+        let month = s[5..7].parse::<u8>().ok()?;
+        if s.as_bytes()[7] != b'-' {
+            return None;
+        }
+        let day = s[8..10].parse::<u8>().ok()?;
+
+        let t_sep = s.as_bytes()[10];
+        if t_sep != b'T' && t_sep != b't' {
+            return None;
+        }
+
+        let hour = s[11..13].parse::<u8>().ok()?;
+        if s.as_bytes()[13] != b':' {
+            return None;
+        }
+        let minute = s[14..16].parse::<u8>().ok()?;
+        if s.as_bytes()[16] != b':' {
+            return None;
+        }
+        let second = s[17..19].parse::<u8>().ok()?;
+
+        let mut pos = 19;
+        let mut subseconds = 0.0;
+        if pos < s.len() && s.as_bytes()[pos] == b'.' {
+            pos += 1;
+            let start = pos;
+            while pos < s.len() && s.as_bytes()[pos].is_ascii_digit() {
+                pos += 1;
+            }
+            let frac_str = &s[start..pos];
+            if !frac_str.is_empty() {
+                let mut f = 0.0;
+                let mut div = 10.0;
+                for b in frac_str.as_bytes() {
+                    f += f64::from(b - b'0') / div;
+                    div *= 10.0;
+                }
+                subseconds = f;
+            }
+        }
+
+        let offset;
+        if pos < s.len() {
+            let suffix = &s[pos..];
+            if suffix.eq_ignore_ascii_case("Z") {
+                offset = 0.0;
+            } else if suffix.len() == 6 {
+                let sign = match suffix.as_bytes()[0] {
+                    b'+' => 1.0,
+                    b'-' => -1.0,
+                    _ => return None,
+                };
+                let h = suffix[1..3].parse::<f64>().ok()?;
+                if suffix.as_bytes()[3] != b':' {
+                    return None;
+                }
+                let m = suffix[4..6].parse::<f64>().ok()?;
+                offset = sign * (h + m / 60.0);
+            } else {
+                return None;
+            }
+        } else {
+            return None;
+        }
+
+        if year < 1970
+            || month < 1
+            || month > 12
+            || day < 1
+            || day > 31
+            || hour > 23
+            || minute > 59
+            || second > 60
+        {
+            return None;
+        }
+
+        let mut unix_timestamp =
+            DateTime::from_ymd_hms(year, month, day, hour, minute, second).unix_timestamp;
+        unix_timestamp -= offset * SECONDS_IN_HOUR;
+        unix_timestamp += subseconds;
+
+        let mut dt = DateTime::from_timestamp(unix_timestamp);
+        dt.with_utc_offset(offset);
+        Some(dt)
+    }
+
+    /// Returns the formatted string of the `DateTime` according to RFC 9557.
+    pub fn to_rfc9557(&self) -> String {
+        let mut s = self.to_rfc3339();
+        if self.timezone != 0.0 {
+            let sign = if self.timezone >= 0.0 { "+" } else { "-" };
+            let abs_offset = self.timezone.abs();
+            let hours = abs_offset.trunc() as i32;
+            let minutes = (abs_offset.fract() * 60.0).round() as i32;
+            s.push_str(&format!("[{sign}{hours:02}:{minutes:02}]"));
+        }
+        s
+    }
+
+    /// Parses an RFC 9557 string into a `DateTime`.
+    pub fn from_rfc9557(s: &str) -> Option<DateTime> {
+        let end_of_rfc3339 = s.find('[').unwrap_or(s.len());
+        let dt = DateTime::from_rfc3339(&s[..end_of_rfc3339])?;
+
+        let mut pos = end_of_rfc3339;
+        while pos < s.len() {
+            if s.as_bytes()[pos] != b'[' {
+                return None;
+            }
+            let end = s[pos..].find(']')? + pos;
+            let tag = &s[pos + 1..end];
+
+            let critical = tag.starts_with('!');
+            let tag_content = if critical { &tag[1..] } else { tag };
+
+            if tag_content.contains('=') {
+                if critical {
+                    return None;
+                }
+            } else if critical {
+                // Timezone name or offset tag
+                if (tag_content.starts_with('+') || tag_content.starts_with('-'))
+                    && tag_content.len() == 6
+                {
+                    let sign = if tag_content.starts_with('+') {
+                        1.0
+                    } else {
+                        -1.0
+                    };
+                    let h = tag_content[1..3].parse::<f64>().ok()?;
+                    let m = tag_content[4..6].parse::<f64>().ok()?;
+                    let tag_offset = sign * (h + m / 60.0);
+                    if (tag_offset - dt.timezone).abs() > 1e-9 {
+                        return None;
+                    }
+                } else {
+                    return None;
+                }
+            }
+            pos = end + 1;
+        }
+
+        Some(dt)
+    }
+
     /// Instantiates a new `DateTime` with the specified date and time
     ///
     /// This function assumes that the passed in data is in UTC.

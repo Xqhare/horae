@@ -30,6 +30,8 @@ It is simply another library for my tech-stack.
 - Get a timestamp for a given date and time
 - Get a date and time from a timestamp
 - Subtract a date and time and another date and time to get a duration
+- RFC 3339 support (parsing and formatting)
+- RFC 9557 support (parsing and formatting with extended information)
 
 ## Performance
 
@@ -120,6 +122,37 @@ let timestamp = utc_now.unix_timestamp();
 let utc_from_timestamp = Utc::from_timestamp(timestamp);
 assert_eq!(utc_now.to_string(), utc_from_timestamp.to_string());
 ```
+
+### RFC Support
+Horae supports parsing and formatting for RFC 3339 and RFC 9557.
+
+#### RFC 3339
+RFC 3339 defines a profile of ISO 8601 for use in Internet protocols.
+
+```rust
+use horae::Utc;
+
+let now = Utc::now();
+let rfc3339_string = now.to_rfc3339();
+
+let parsed = Utc::from_rfc3339("1985-04-12T23:20:50.52Z").unwrap();
+```
+
+#### RFC 9557
+RFC 9557 extends RFC 3339 to allow for additional information, like timezones and calendar systems.
+
+```rust
+use horae::{Utc, TimeZone};
+
+let mut dt = Utc::from_ymd_hms(1996, 12, 19, 16, 39, 57);
+dt.with_utc_offset(-8.0);
+let rfc9557_string = dt.to_rfc9557();
+// Result: 1996-12-19T08:39:57-08:00[-08:00]
+
+let parsed = Utc::from_rfc9557("1996-12-19T16:39:57-08:00[America/Los_Angeles]").unwrap();
+```
+
+Critical tags (marked with `!`) that are unknown or inconsistent will cause `from_rfc9557` to return `None`.
 
 ### Arithmetic
 Basic date and time arithmetic can be done with the `Utc` struct and a `Duration` from the standard library.
