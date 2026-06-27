@@ -316,7 +316,7 @@ impl DateTime {
         let day = s[8..10].parse::<u8>().ok()?;
 
         let t_sep = s.as_bytes()[10];
-        if t_sep != b'T' && t_sep != b't' {
+        if t_sep != b'T' && t_sep != b't' && t_sep != b' ' {
             return None;
         }
 
