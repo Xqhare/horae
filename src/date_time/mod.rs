@@ -302,7 +302,7 @@ impl DateTime {
 
     /// Parses an RFC 3339 string into a `DateTime`.
     pub fn from_rfc3339(s: &str) -> Option<DateTime> {
-        if s.len() < 19 {
+        if s.len() < 16 {
             return None;
         }
         let year = s[0..4].parse::<u16>().ok()?;
@@ -325,12 +325,25 @@ impl DateTime {
             return None;
         }
         let minute = s[14..16].parse::<u8>().ok()?;
-        if s.as_bytes()[16] != b':' {
-            return None;
-        }
-        let second = s[17..19].parse::<u8>().ok()?;
 
-        let mut pos = 19;
+        let mut pos;
+        let second = if s.len() < 19 {
+            pos = 17;
+            0
+        } else {
+            if s.as_bytes()[16] == b'Z'
+                || s.as_bytes()[16] == b'z'
+                || s.as_bytes()[16] == b'+'
+                || s.as_bytes()[16] == b'-'
+            {
+                pos = 16;
+                0
+            } else {
+                pos = 19;
+                s[17..19].parse::<u8>().ok()?
+            }
+        };
+
         let mut subseconds = 0.0;
         if pos < s.len() && s.as_bytes()[pos] == b'.' {
             pos += 1;
@@ -371,7 +384,7 @@ impl DateTime {
                 return None;
             }
         } else {
-            return None;
+            offset = 0.0;
         }
 
         if year < 1970

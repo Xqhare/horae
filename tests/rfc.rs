@@ -33,6 +33,38 @@ fn test_rfc3339_parsing() {
 }
 
 #[test]
+fn test_rfc3339_toml_spec_parsing() {
+    // Space instead of T
+    let s4 = "2022-07-08 00:14:07+01:00";
+    let dt4 = Utc::from_rfc3339(s4).unwrap();
+    assert_eq!(dt4.to_rfc3339(), "2022-07-08T00:14:07+01:00");
+
+    let s5 = "2023-09-03 02:11:05Z";
+    let dt5 = Utc::from_rfc3339(s5).unwrap();
+    assert_eq!(dt5.to_rfc3339(), "2023-09-03T02:11:05Z");
+
+    let s6 = "1979-05-27T07:32:00z";
+    let dt6 = Utc::from_rfc3339(s6).unwrap();
+    assert_eq!(dt6.to_rfc3339(), "1979-05-27T07:32:00Z");
+
+    let s7 = "1979-05-27T00:32:00.5-07:00";
+    let dt7 = Utc::from_rfc3339(s7).unwrap();
+    assert_eq!(dt7.to_rfc3339(), "1979-05-27T00:32:00.5-07:00");
+
+    let s8 = "1979-05-27 07:32:00Z";
+    let dt8 = Utc::from_rfc3339(s8).unwrap();
+    assert_eq!(dt8.to_rfc3339(), "1979-05-27T07:32:00Z");
+
+    let s9 = "1979-05-27 07:32Z";
+    let dt9 = Utc::from_rfc3339(s9).unwrap();
+    assert_eq!(dt9.to_rfc3339(), "1979-05-27T07:32:00Z");
+
+    let s10 = "1979-05-27 07:32-07:00";
+    let dt10 = Utc::from_rfc3339(s10).unwrap();
+    assert_eq!(dt10.to_rfc3339(), "1979-05-27T07:32:00-07:00");
+}
+
+#[test]
 fn test_rfc9557_formatting() {
     let mut dt = Utc::from_ymd_hms(1996, 12, 19, 16, 39, 57);
     dt.with_utc_offset(-8.0);
