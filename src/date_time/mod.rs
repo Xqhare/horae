@@ -1,3 +1,4 @@
+use aequa::XffValue;
 use common::{
     SECONDS_IN_DAY, SECONDS_IN_HOUR, SECONDS_IN_MINUTE, SECONDS_IN_YEAR, days_in_month,
     is_this_year_leap_year, leap_years_since_epoch, make_now_date, make_now_time, week_day,
@@ -49,6 +50,26 @@ impl DateTime {
         }
     }
 
+    /// Cast the `DateTime` to an `XFFValue::DateTime`.
+    pub fn to_xffvalue(&self) -> XffValue {
+        XffValue::DateTime(aequa::DateTime::from(self.unix_timestamp_u64()))
+    }
+
+    /// Instantiates a new `DateTime` from an `XFFValue::DateTime`.
+    pub fn from_xffvalue(value: XffValue) -> Option<DateTime> {
+        match value {
+            XffValue::DateTime(xff) => {
+                Some(DateTime::from_timestamp(xff.as_unix_timestamp() as f64))
+            }
+            _ => None,
+        }
+    }
+
+    /// Returns the unix timestamp of the `DateTime` in milliseconds.
+    #[must_use]
+    pub fn unix_timestamp_u64(&self) -> u64 {
+        (self.unix_timestamp * 1000.0) as u64
+    }
     /// Instantiates a new `DateTime` from any supplied unix timestamp.
     pub fn from_timestamp(timestamp: f64) -> DateTime {
         let (date, new_timestamp, unix_timestamp) = make_now_date(timestamp);

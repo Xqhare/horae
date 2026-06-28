@@ -3,6 +3,7 @@
 
 use std::time::Duration;
 
+use aequa::XffValue;
 use date_time::{DateTime, date::Date, time::Time};
 
 mod date_time;
@@ -67,6 +68,33 @@ impl Utc {
         Utc {
             date_time: DateTime::now(),
         }
+    }
+
+    /// Cast the `Utc` instance to an `XFFValue::DateTime`.
+    ///
+    /// # Note
+    ///
+    /// Requires either `aequa`, `athena` or either `nabu` or `mawu` as a dependency to be able to
+    /// work with the result.
+    ///
+    /// # Returns
+    ///
+    /// Always returns a `XffValue::DateTime`.
+    #[must_use]
+    pub fn to_xffvalue(&self) -> XffValue {
+        self.date_time.to_xffvalue()
+    }
+
+    /// Instantiates a new `Utc` from an `XFFValue::DateTime`.
+    ///
+    /// # Note
+    /// Requires either `aequa`, `athena` or either `nabu` or `mawu` as a dependency to be able to
+    /// work with the result.
+    ///
+    /// # Returns
+    /// `None` if the `XffValue` is not of type `XffValue::DateTime`.
+    pub fn from_xffvalue(value: XffValue) -> Option<Utc> {
+        DateTime::from_xffvalue(value).map(|date_time| Utc { date_time })
     }
 
     /// Mutates a `Utc` with the specified timezone enum.
@@ -332,7 +360,7 @@ impl Utc {
     /// ```
     #[must_use]
     pub fn unix_timestamp_u64(&self) -> u64 {
-        (self.date_time.unix_timestamp * 1000.0) as u64
+        self.date_time.unix_timestamp_u64()
     }
 
     /// Instantiates a new `Utc` from a unix timestamp.
