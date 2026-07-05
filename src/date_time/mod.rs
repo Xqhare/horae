@@ -405,7 +405,11 @@ impl DateTime {
                 return None;
             }
         } else {
-            offset = 0.0;
+            if s.ends_with("Z") || s.ends_with("z") {
+                offset = 0.0;
+            } else {
+                return None;
+            }
         }
 
         if year < 1970
