@@ -478,3 +478,22 @@ impl PartialOrd for Utc {
         self.date_time.partial_cmp(&other.date_time)
     }
 }
+
+impl Eq for Utc {}
+
+impl Ord for Utc {
+    fn cmp(&self, other: &Utc) -> std::cmp::Ordering {
+        self.date_time.partial_cmp(&other.date_time).unwrap()
+    }
+}
+
+#[test]
+fn order_and_equality() {
+    let utc1 = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 9);
+    let utc2 = Utc::from_ymd_hms(2019, 1, 1, 9, 9, 10);
+    assert!(utc1 < utc2);
+    assert!(utc1 <= utc2);
+    assert!(utc2 > utc1);
+    assert!(utc2 >= utc1);
+    assert!(utc1 == utc1);
+}
